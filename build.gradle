@@ -253,7 +253,12 @@ task restartUfServer() {
             workingDir 'docker/test/'
             commandLine 'docker-compose', 'down'
         }
-        "docker-compose up".execute(new String[0], new File(projectDir, "docker/test") )
+
+        ext.process = new ProcessBuilder()
+                .directory(new File(projectDir,"docker${File.separator}test${File.separator}"))
+                .command("docker-compose", "up")
+                .start()
+
     }
 
 }
