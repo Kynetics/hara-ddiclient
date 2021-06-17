@@ -18,7 +18,7 @@ import org.eclipse.hara.updatefactory.ddiclient.core.api.Updater
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.runBlocking
 
-@UseExperimental(ObsoleteCoroutinesApi::class)
+@OptIn(ObsoleteCoroutinesApi::class)
 class UpdateManager
 private constructor(scope: ActorScope) : AbstractActor(scope) {
 

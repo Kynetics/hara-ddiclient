@@ -29,5 +29,7 @@ fun File.md5(): String {
                 sb.append(String.format("%02X", it))
             }
     }
-    return sb.toString().toLowerCase()
+    return sb.toString().lowercase()
 }
+
+

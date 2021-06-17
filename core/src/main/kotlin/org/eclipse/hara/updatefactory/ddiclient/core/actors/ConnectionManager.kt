@@ -27,7 +27,7 @@ import org.joda.time.Instant
 import java.util.Timer
 import kotlin.concurrent.timer
 
-@UseExperimental(ObsoleteCoroutinesApi::class)
+@OptIn(ObsoleteCoroutinesApi::class)
 class ConnectionManager
 private constructor(scope: ActorScope) : AbstractActor(scope) {
 

@@ -9,6 +9,7 @@
 
 package org.eclipse.hara.updatefactory.ddiclient.core.actors
 
+import kotlinx.coroutines.*
 import org.eclipse.hara.updatefactory.ddiapiclient.api.DdiClient
 import org.eclipse.hara.updatefactory.ddiclient.core.PathResolver
 import org.eclipse.hara.updatefactory.ddiclient.core.UpdaterRegistry
@@ -18,12 +19,6 @@ import org.eclipse.hara.updatefactory.ddiclient.core.api.MessageListener
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlinx.coroutines.CompletionHandler
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
@@ -34,12 +29,12 @@ typealias Receive = suspend (Any) -> Unit
 
 typealias ActorRef = SendChannel<Any>
 
-@UseExperimental(ObsoleteCoroutinesApi::class)
+@OptIn(ObsoleteCoroutinesApi::class)
 typealias ActorScope = kotlinx.coroutines.channels.ActorScope<Any>
 
 val EmptyReceive: Receive = {}
 
-@UseExperimental(ObsoleteCoroutinesApi::class)
+@OptIn(ObsoleteCoroutinesApi::class)
 abstract class AbstractActor protected constructor(private val actorScope: ActorScope) : ActorScope by actorScope {
 
     private var __receive__: Receive = EmptyReceive
@@ -127,6 +122,7 @@ abstract class AbstractActor protected constructor(private val actorScope: Actor
             }
         }
 
+        @OptIn(DelicateCoroutinesApi::class)
         fun <T : AbstractActor> actorOf(
             name: String,
             context: CoroutineContext = EmptyCoroutineContext,

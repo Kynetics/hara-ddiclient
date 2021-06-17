@@ -12,7 +12,7 @@ package org.eclipse.hara.updatefactory.ddiclient.core.actors
 import org.eclipse.hara.updatefactory.ddiclient.core.api.MessageListener
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 
-@UseExperimental(ObsoleteCoroutinesApi::class)
+@OptIn(ObsoleteCoroutinesApi::class)
 class NotificationManager
 private constructor(scope: ActorScope) : AbstractActor(scope) {
 

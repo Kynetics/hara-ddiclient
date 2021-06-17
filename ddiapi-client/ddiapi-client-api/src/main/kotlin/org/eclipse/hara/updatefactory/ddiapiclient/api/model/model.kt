@@ -245,12 +245,12 @@ data class DeplBaseResp(
                     val md5: String
                 )
                 data class Lnks(
-                        val download: Lnk,
-                        val md5sum: Lnk,
+                        val download: Lnk?,
+                        val md5sum: Lnk?,
                         @SerializedName("download-http")
-                    val download_http: Lnk,
+                    val download_http: Lnk?,
                         @SerializedName("md5sum-http")
-                    val md5sum_http: Lnk
+                    val md5sum_http: Lnk?
                 ) {
                     data class Lnk(val href: String)
                 }

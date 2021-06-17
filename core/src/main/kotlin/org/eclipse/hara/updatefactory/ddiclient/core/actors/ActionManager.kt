@@ -19,7 +19,7 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.joda.time.Duration
 
-@UseExperimental(ObsoleteCoroutinesApi::class)
+@OptIn(ObsoleteCoroutinesApi::class)
 class ActionManager
 private constructor(scope: ActorScope) : AbstractActor(scope) {
 
@@ -72,7 +72,7 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
                 child("deploymentManager")!!.send(Message.CancelForced)
             }
 
-            msg is Out.NoAction -> onNoAction(msg, state)
+            msg is Out.NoAction -> onNoAction(state)
 
             msg is ErrMsg -> {
                 LOG.warn("ErrMsg. Not yet implemented")
@@ -126,7 +126,7 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         }
     }
 
-    private suspend fun onNoAction(msg: Out.NoAction, state: State) {
+    private suspend fun onNoAction(state: State) {
         when {
             state.inDeployment -> {
                 LOG.warn("CancelForced/RemoveTarget.")

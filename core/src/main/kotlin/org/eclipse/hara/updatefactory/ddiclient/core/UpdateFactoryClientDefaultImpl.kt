@@ -48,6 +48,7 @@ class UpdateFactoryClientDefaultImpl : UpdateFactoryClient {
 
     override fun startAsync() = runBlocking { rootActor!!.send(ConnectionManager.Companion.Message.In.Start) }
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     override fun stop() = runBlocking {
         if (!rootActor!!.isClosedForSend) {
             rootActor!!.send(ConnectionManager.Companion.Message.In.Stop)

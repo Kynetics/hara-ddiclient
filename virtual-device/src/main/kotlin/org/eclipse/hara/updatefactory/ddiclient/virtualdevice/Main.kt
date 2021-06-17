@@ -9,6 +9,7 @@
 
 package org.eclipse.hara.updatefactory.ddiclient.virtualdevice
 
+import kotlinx.coroutines.*
 import org.eclipse.hara.updatefactory.ddiclient.core.UpdateFactoryClientDefaultImpl
 import org.eclipse.hara.updatefactory.ddiclient.core.api.UpdateFactoryClientData
 import org.eclipse.hara.updatefactory.ddiclient.virtualdevice.entrypoint.ConfigDataProviderImpl
@@ -16,15 +17,11 @@ import org.eclipse.hara.updatefactory.ddiclient.virtualdevice.entrypoint.Deploym
 import org.eclipse.hara.updatefactory.ddiclient.virtualdevice.entrypoint.DirectoryForArtifactsProviderImpl
 import org.eclipse.hara.updatefactory.ddiclient.virtualdevice.entrypoint.MessageListenerImpl
 import org.eclipse.hara.updatefactory.ddiclient.virtualdevice.entrypoint.UpdaterImpl
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlin.random.Random.Default.nextInt
 import kotlin.random.Random.Default.nextLong
 
 // TODO add exception handling ! --> A
+@OptIn(DelicateCoroutinesApi::class)
 @ObsoleteCoroutinesApi
 fun main() = runBlocking {
     Configuration.apply {
