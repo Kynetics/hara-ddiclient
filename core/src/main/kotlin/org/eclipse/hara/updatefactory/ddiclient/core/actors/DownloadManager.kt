@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-@UseExperimental(ObsoleteCoroutinesApi::class)
+@OptIn(ObsoleteCoroutinesApi::class)
 class DownloadManager
 private constructor(scope: ActorScope) : AbstractActor(scope) {
 
@@ -145,7 +145,7 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         }
         return dbr.deployment.chunks.flatMap { it.artifacts }.filter { md5s.contains(it.hashes.md5) }.map { at ->
             val md5 = at.hashes.md5
-            val ftd = FileToDownload(at.filename, md5, at._links.download_http.href, wd, at.size)
+            val ftd = FileToDownload(at.filename, md5, at._links.download_http?.href ?: "" , wd, at.size)
             val dm = actorOf(childName(md5)) {
                 FileDownloader.of(it, 3, ftd, dbr.id)
             }
@@ -167,8 +167,10 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         }
     }
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     override fun beforeCloseChannel() {
-        forEachActorNode { actorRef -> launch { actorRef.send(FileDownloader.Companion.Message.Stop) } }
+        forEachActorNode { actorRef -> if(!actorRef.isClosedForSend) launch { actorRef.send(FileDownloader.Companion.Message.Stop) } }
+
     }
 
     init {

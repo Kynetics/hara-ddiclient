@@ -9,12 +9,10 @@
 
 package org.eclipse.hara.updatefactory.ddiclient.integrationtest
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import org.eclipse.hara.updatefactory.ddiclient.core.PathResolver
 import org.eclipse.hara.updatefactory.ddiclient.core.api.ConfigDataProvider
 import org.eclipse.hara.updatefactory.ddiclient.core.api.DirectoryForArtifactsProvider
 import org.eclipse.hara.updatefactory.ddiclient.core.api.Updater
-import kotlinx.coroutines.Deferred
 import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -24,6 +22,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Path
 import java.io.File
+import java.util.*
 import java.util.concurrent.Executors
 
 /**
@@ -50,25 +49,25 @@ interface ManagementApi {
     }
 
     @GET("$BASE_V1_REQUEST_MAPPING/targets/{targetId}/actions/{actionId}/status")
-    fun getTargetActionStatusAsync(
+    suspend fun getTargetActionStatusAsync(
         @Header("Authorization") auth: String,
         @Path("targetId") targetId: String,
         @Path("actionId") actionId: Int
-    ): Deferred<ActionStatus>
+    ): ActionStatus
 
     @GET("$BASE_V1_REQUEST_MAPPING/targets/{targetId}/actions/{actionId}")
-    fun getActionAsync(
+    suspend fun getActionAsync(
         @Header("Authorization") auth: String,
         @Path("targetId") targetId: String,
         @Path("actionId") actionId: Int
-    ): Deferred<Action>
+    ): Action
 
     @DELETE("$BASE_V1_REQUEST_MAPPING/targets/{targetId}/actions/{actionId}")
-    fun deleteTargetActionAsync(
+    suspend fun deleteTargetActionAsync(
         @Header("Authorization") auth: String,
         @Path("targetId") targetId: String,
         @Path("actionId") actionId: Int
-    ): Deferred<Unit>
+    ): Unit
 }
 
 object ManagementClient {
@@ -78,20 +77,19 @@ object ManagementClient {
             private val delegate: ManagementApi = Retrofit.Builder().baseUrl(url)
                     .client(OkHttpClient.Builder().build())
                     .addConverterFactory(GsonConverterFactory.create())
-                    .addCallAdapterFactory(CoroutineCallAdapterFactory())
                     .callbackExecutor(Executors.newSingleThreadExecutor())
                     .build()
                     .create(ManagementApi::class.java)
 
-            override fun getTargetActionStatusAsync(auth: String, targetId: String, actionId: Int): Deferred<ActionStatus> {
+            override suspend fun getTargetActionStatusAsync(auth: String, targetId: String, actionId: Int): ActionStatus {
                 return delegate.getTargetActionStatusAsync(auth, targetId, actionId)
             }
 
-            override fun getActionAsync(auth: String, targetId: String, actionId: Int): Deferred<Action> {
+            override suspend fun getActionAsync(auth: String, targetId: String, actionId: Int): Action {
                 return delegate.getActionAsync(auth, targetId, actionId)
             }
 
-            override fun deleteTargetActionAsync(auth: String, targetId: String, actionId: Int): Deferred<Unit> {
+            override suspend fun deleteTargetActionAsync(auth: String, targetId: String, actionId: Int): Unit {
                 TODO("not implemented") // To change body of created functions use File | Settings | File Templates.
             }
         }
@@ -114,7 +112,7 @@ object TestUtils {
     }
 
     val tenantName = "DEFAULT"
-    val tenantNameToLower = tenantName.toLowerCase().capitalize()
+    val tenantNameToLower = tenantName.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     val basic = Credentials.basic("$tenantName\\test", "test")
     val ufUrl = "http://localhost:8081"
     val downloadRootDirPath = "./build/test/download/"

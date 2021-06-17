@@ -34,7 +34,7 @@ class UpdateFactoryAuthenticationRequestInterceptor(
 
         val builder = originalRequest.newBuilder()
 
-        val isConfigDataRequest = originalRequest.url().toString().endsWith(CONFIG_DATA_ACTION)
+        val isConfigDataRequest = originalRequest.url.toString().endsWith(CONFIG_DATA_ACTION)
 
         var targetTokenAuth: Authentication? = null
 

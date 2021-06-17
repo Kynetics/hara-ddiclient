@@ -8,15 +8,16 @@
  */
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.21'
-    id "io.gitlab.arturbosch.detekt" version "1.0.0-RC16"
+    id 'org.jetbrains.kotlin.jvm' version '1.5.10'
+    id 'io.gitlab.arturbosch.detekt' version '1.17.1'
     id 'jacoco'
     id 'java'
+    id 'com.github.jk1.dependency-license-report' version '1.16'
+
 }
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 final def deps = gradle.settings.app_dependencies
@@ -25,7 +26,7 @@ final def app_version = '1.0.0'
 
 subprojects {
     apply plugin: 'org.jetbrains.kotlin.jvm'
-    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
     apply from: "$rootDir/ktlint.gradle"
     apply plugin: 'java'
 
@@ -54,7 +55,6 @@ project(':ddiapi-client') {
         dependencies {
             implementation deps.okhttp
             implementation deps.retrofit
-            implementation deps.retrofit_coroutines
             implementation deps.slf4j_api
 
         }
@@ -62,7 +62,7 @@ project(':ddiapi-client') {
     project(subprj) {
         dependencies {
             implementation deps.gson
-            testCompile tdeps.testng
+            testImplementation tdeps.testng
         }
         test {
             useTestNG()
@@ -90,18 +90,15 @@ project(':core') {
         implementation project(':ddiapi-client:ddiapi-client-api')
         implementation deps.slf4j_api
         implementation deps.joda
-        //implementation deps.retrofit
-
         implementation deps.gson
-        testCompile tdeps.testng
-        testCompile deps.okhttp
-        testCompile deps.retrofit
-        testCompile deps.retrofit_coroutines
-        testCompile deps.retrofit_converter
+        testImplementation tdeps.testng
+        testImplementation deps.okhttp
+        testImplementation deps.retrofit
+        testImplementation deps.retrofit_converter
         implementation deps.retrofit_converter
 
     }
-    
+
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
         kotlinOptions.freeCompilerArgs += ["-Xuse-experimental=kotlin.Experimental"]
     }
@@ -183,10 +180,10 @@ task installClientSideGitHooks(type: Exec, group: "git-hooks") {
 }
 
 detekt {
+    toolVersion = "1.17.1"
     config = files("$rootDir/default-detekt-config.yml", "$rootDir/detekt-config.yml")
-    toolVersion = "1.0.0-RC16"
     input = files("$projectDir")
-    filters = ".*/resources/.*,.*/build/.*"
+    buildUponDefaultConfig = true
 }
 
 test {
@@ -202,7 +199,7 @@ task codeCoverage(type: JacocoReport, group: 'verification') {
 
     reports {
         xml.enabled true
-        xml.destination "${buildDir}/reports/jacoco/report.xml"
+        xml.destination new File("${buildDir}/reports/jacoco/report.xml")
         html.enabled true
         csv.enabled false
     }
@@ -284,16 +281,15 @@ test.dependsOn waitingUFServer
 test.dependsOn cleanTest
 
 dependencies{
-    testCompile tdeps.testng
-    testCompile deps.kotlin_stdlib
-    testCompile deps.kotlin_x
-    testCompile deps.joda
-    testCompile deps.okhttp
-    testCompile deps.retrofit
-    testCompile deps.retrofit_coroutines
-    testCompile deps.retrofit_converter
-    testCompile project(':core')
-    testCompile project(':core:core-api')
-    testCompile project(':ddiapi-client')
-    testCompile project(':ddiapi-client:ddiapi-client-api')
+    testImplementation tdeps.testng
+    testImplementation deps.kotlin_stdlib
+    testImplementation deps.kotlin_x
+    testImplementation deps.joda
+    testImplementation deps.okhttp
+    testImplementation deps.retrofit
+    testImplementation deps.retrofit_converter
+    testImplementation project(':core')
+    testImplementation project(':core:core-api')
+    testImplementation project(':ddiapi-client')
+    testImplementation project(':ddiapi-client:ddiapi-client-api')
 }

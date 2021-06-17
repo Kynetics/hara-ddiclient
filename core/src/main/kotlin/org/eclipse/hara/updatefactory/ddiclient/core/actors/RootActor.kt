@@ -14,7 +14,7 @@ import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 
-@UseExperimental(ObsoleteCoroutinesApi::class)
+@OptIn(ObsoleteCoroutinesApi::class)
 class RootActor
 private constructor(scope: ActorScope) : AbstractActor(scope) {
 

@@ -22,7 +22,7 @@ import kotlin.concurrent.fixedRateTimer
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.launch
 
-@UseExperimental(ObsoleteCoroutinesApi::class)
+@OptIn(ObsoleteCoroutinesApi::class)
 class FileDownloader
 private constructor(
         scope: ActorScope,

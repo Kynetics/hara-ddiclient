@@ -44,7 +44,7 @@ class HawkbitAuthenticationRequestInterceptor(authentications: Set<Authenticatio
             val authentication = authentications[authenticationUse]
             builder.header(authentication.header, authentication.headerValue)
             response = chain.proceed(builder.build())
-            if (response.code() != 401) {
+            if (response.code != 401) {
                 break
             }
             authenticationUse = ++authenticationUse % size

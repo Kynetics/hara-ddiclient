@@ -49,11 +49,11 @@ interface DdiRestApi {
      */
     @Headers("Accept: application/hal+json")
     @GET(DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/softwaremodules/{softwareModuleId}/artifacts")
-    fun getSoftwareModulesArtifacts(
+    suspend fun getSoftwareModulesArtifacts(
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
         @Path("softwareModuleId") softwareModuleId: String
-    ): Deferred<List<ArtfctResp>>
+    ): List<ArtfctResp>
 
     /**
      * Root resource for an individual [Target].
@@ -66,11 +66,11 @@ interface DdiRestApi {
      */
     @Headers("Accept: application/hal+json")
     @GET(DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}")
-    fun getControllerActions(
+    suspend fun getControllerActions(
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
         @Header(value = "If-None-Match") etag: String = ""
-    ): Deferred<Response<CtrlBaseResp>>
+    ): Response<CtrlBaseResp>
 
     /**
      * Handles GET [DdiArtifact] download request.
@@ -79,7 +79,7 @@ interface DdiRestApi {
      */
     @Streaming
     @GET
-    fun downloadArtifact(@Url url: String): Deferred<ResponseBody>
+    suspend fun downloadArtifact(@Url url: String): ResponseBody
 
     /**
      * Resource for software module.
@@ -108,14 +108,14 @@ interface DdiRestApi {
     @Headers("Accept: application/hal+json")
     @GET(DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" + DdiRestConstants.DEPLOYMENT_BASE_ACTION +
             "/{actionId}")
-    fun getDeploymentActionDetails(
+    suspend fun getDeploymentActionDetails(
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
         @Path("actionId") actionId: String,
         @Query(value = "c") resource: Int?,
         @Query(value = "actionHistory") actionHistoryMessageCount: Int?,
         @Header(value = "If-None-Match") etag: String = ""
-    ): Deferred<Response<DeplBaseResp>>
+    ): Response<DeplBaseResp>
 
     /**
      * This is the feedback channel for the [DdiDeploymentBase] action.
@@ -134,12 +134,12 @@ interface DdiRestApi {
     @Headers("Content-Type: application/json")
     @POST(DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" + DdiRestConstants.DEPLOYMENT_BASE_ACTION + "/{actionId}/" +
             DdiRestConstants.FEEDBACK)
-    fun postDeploymentActionFeedback(
+    suspend fun postDeploymentActionFeedback(
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
         @Path("actionId") actionId: String?,
         @Body feedback: DeplFdbkReq
-    ): Deferred<Response<Unit>>
+    ): Response<Unit>
 
     /**
      * This is the feedback channel for the config data action.
@@ -156,11 +156,11 @@ interface DdiRestApi {
     @Headers("Content-Type: application/json")
     @PUT(value = DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" +
             DdiRestConstants.CONFIG_DATA_ACTION)
-    fun putConfigData(
+    suspend fun putConfigData(
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
         @Body configData: CfgDataReq
-    ): Deferred<Response<Unit>>
+    ): Response<Unit>
 
     /**
      * RequestMethod.GET method for the [DdiCancel] action.
@@ -177,11 +177,11 @@ interface DdiRestApi {
     @Headers("Accept: application/hal+json")
     @GET(value = DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" + DdiRestConstants.CANCEL_ACTION +
             "/{actionId}")
-    fun getCancelActionDetails(
+    suspend fun getCancelActionDetails(
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
         @Path("actionId") actionId: String
-    ): Deferred<CnclActResp>
+    ): CnclActResp
 
     /**
      * RequestMethod.POST method receiving the [DdiActionFeedback] from
@@ -202,10 +202,10 @@ interface DdiRestApi {
     @Headers("Content-Type: application/json")
     @POST(DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" + DdiRestConstants.CANCEL_ACTION + "/{actionId}/" +
             DdiRestConstants.FEEDBACK)
-    fun postCancelActionFeedback(
+    suspend fun postCancelActionFeedback(
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
         @Path("actionId") actionId: String?,
         @Body feedback: CnclFdbkReq
-    ): Deferred<Unit>
+    ): Unit
 }

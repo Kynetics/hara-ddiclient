@@ -90,18 +90,18 @@ abstract class AbstractClientTest {
 
             deployment.deploymentInfo.forEach { deploymentInfo ->
 
-                var actionStatus = managementApi.getTargetActionStatusAsync(basic, deployment.targetId, deploymentInfo.actionId).await()
+                var actionStatus = managementApi.getTargetActionStatusAsync(basic, deployment.targetId, deploymentInfo.actionId)
 
                 Assert.assertEquals(actionStatus, deploymentInfo.actionStatusOnStart)
 
                 queue.add {
                     launch {
-                        while(managementApi.getActionAsync(basic, deployment.targetId, deploymentInfo.actionId).await()
+                        while(managementApi.getActionAsync(basic, deployment.targetId, deploymentInfo.actionId)
                                 .status != Action.Status.finished
                         ) {
                             delay(100)
                         }
-                        actionStatus = managementApi.getTargetActionStatusAsync(basic, deployment.targetId, deploymentInfo.actionId).await()
+                        actionStatus = managementApi.getTargetActionStatusAsync(basic, deployment.targetId, deploymentInfo.actionId)
 
                         Assert.assertEquals(actionStatus.content, deploymentInfo.actionStatusOnFinish.content)
 
