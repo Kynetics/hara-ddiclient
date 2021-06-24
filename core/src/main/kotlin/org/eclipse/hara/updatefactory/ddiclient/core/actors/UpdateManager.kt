@@ -62,24 +62,24 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
     }
 
     private fun update(
-            updaters: Set<UpdaterRegistry.UpdaterWithSwModule>,
-            msg: DeploymentInfo,
-            details: MutableList<String>
+        updaters: Set<UpdaterRegistry.UpdaterWithSwModule>,
+        message: DeploymentInfo,
+        details: MutableList<String>
     ):
             List<Pair<Int, UpdaterRegistry.UpdaterWithSwModule>> {
         return updaters
                 .mapIndexed { index, u -> index to u }
                 .dropWhile { (index, it) ->
                     val updateResult = it.updater.apply(it.softwareModules.map { swModule ->
-                        convert(swModule, pathResolver.fromArtifact(msg.info.id))
+                        convert(swModule, pathResolver.fromArtifact(message.info.id))
                     }.toSet(), object : Updater.Messenger {
-                        override fun sendMessageToServer(vararg msgStr: String) {
+                        override fun sendMessageToServer(vararg msg: String) {
                             runBlocking {
-                                sendFeedback(msg.info.id,
+                                sendFeedback(message.info.id,
                                         DeplFdbkReq.Sts.Exc.proceeding,
                                         DeplFdbkReq.Sts.Rslt.Prgrs(updaters.size, index),
                                         DeplFdbkReq.Sts.Rslt.Fnsh.none,
-                                        *msgStr)
+                                        *msg)
                             }
                         }
                     })
