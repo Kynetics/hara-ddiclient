@@ -135,6 +135,9 @@ project(':virtual-device'){
 
     mainClassName = 'org.eclipse.hara.updatefactory.ddiclient.virtualdevice.MainKt'
 
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+        kotlinOptions.freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
 }
 
 boolean doHead(url) {
