@@ -42,7 +42,7 @@ subprojects {
 }
 
 project(':ddiapi-client') {
-    group 'org.eclipse.hara.updatefactory.uf-ddiclient'
+    group 'org.eclipse.hara.hara-ddiclient'
     version app_version
 
     final def subprj = ':ddiapi-client:ddiapi-client-api'
@@ -72,7 +72,7 @@ project(':ddiapi-client') {
 }
 
 project(':ddiapi-client:ddiapi-client-api') {
-    group 'org.eclipse.hara.updatefactory.uf-ddiclient.ddiapi-client'
+    group 'org.eclipse.hara.hara-ddiclient.ddiapi-client'
     version app_version
 
     dependencies {
@@ -81,7 +81,7 @@ project(':ddiapi-client:ddiapi-client-api') {
 }
 
 project(':core') {
-    group 'org.eclipse.hara.updatefactory.uf-ddiclient'
+    group 'org.eclipse.hara.hara-ddiclient'
     version app_version
 
     dependencies {
@@ -114,12 +114,12 @@ project(':core') {
 }
 
 project(':core:core-api') {
-    group 'org.eclipse.hara.updatefactory.uf-ddiclient.core'
+    group 'org.eclipse.hara.hara-ddiclient.core'
     version app_version
 }
 
 project(':virtual-device'){
-    group 'org.eclipse.hara.updatefactory.uf-virtual-device'
+    group 'org.eclipse.hara.hara-virtual-device'
     version app_version
     apply plugin: 'application'
 
@@ -133,7 +133,7 @@ project(':virtual-device'){
 
     }
 
-    mainClassName = 'org.eclipse.hara.updatefactory.ddiclient.virtualdevice.MainKt'
+    mainClassName = 'org.eclipse.hara.ddiclient.virtualdevice.MainKt'
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
         kotlinOptions.freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
@@ -246,7 +246,7 @@ task pushImage(){
     }
 }
 
-task restartUfServer() {
+task restartHawkbitServer() {
     group 'testing'
     doLast {/**/
         exec {
@@ -263,10 +263,10 @@ task restartUfServer() {
 
 }
 
-task waitingUFServer(){
+task waitingHawkbitServer(){
     group 'testing'
 
-    dependsOn 'restartUfServer'
+    dependsOn 'restartHawkbitServer'
 
     doFirst {
         def url = 'http://localhost:8081/health'
@@ -280,7 +280,7 @@ task waitingUFServer(){
 
 }
 
-test.dependsOn waitingUFServer
+test.dependsOn waitingHawkbitServer
 test.dependsOn cleanTest
 
 dependencies{

@@ -7,12 +7,11 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-rootProject.name = 'hara-ddiclient'
-include ':ddiapi-client'
-include ':ddiapi-client:ddiapi-client-api'
-include ':core'
-include ':core:core-api'
-include ':virtual-device'
+package org.eclipse.hara.ddiclient.core.api
 
-apply from: 'dependencies.gradle'
+import java.io.File
 
+interface DirectoryForArtifactsProvider {
+
+    fun directoryForArtifacts(): File
+}
