@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-@OptIn(ObsoleteCoroutinesApi::class)
+@OptIn(ObsoleteCoroutinesApi::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class DownloadManager
 private constructor(scope: ActorScope) : AbstractActor(scope) {
 
