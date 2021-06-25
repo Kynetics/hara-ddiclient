@@ -33,7 +33,6 @@ Create the Service, add the observer and start the service:
                 .withGatewayToken("[gatewayToken]")
                 .withHttpBuilder(new OkHttpClient.Builder())
                 .withOnTargetTokenFound(System.out::println)
-                .withServerType(ServerType.UPDATE_FACTORY)
                 .build();
 
     Map<String,String> map = new HashMap<>();

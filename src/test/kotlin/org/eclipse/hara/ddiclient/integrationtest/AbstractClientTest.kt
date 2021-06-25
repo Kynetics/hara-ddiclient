@@ -43,7 +43,6 @@ abstract class AbstractClientTest {
                 tenantName,
                 targetId,
                 hawkbitUrl,
-                HaraClientData.ServerType.UPDATE_FACTORY,
                 gatewayToken)
 
         val client = HaraClientDefaultImpl()
