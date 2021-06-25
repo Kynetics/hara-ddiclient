@@ -19,7 +19,6 @@ import org.eclipse.hara.ddiapiclient.api.model.DeplBaseResp
 import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq
 import org.eclipse.hara.ddiapiclient.security.Authentication
 import org.eclipse.hara.ddiapiclient.security.HawkbitAuthenticationRequestInterceptor
-import org.eclipse.hara.ddiclient.core.api.HaraClientData.ServerType.HAWKBIT
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.util.HashSet

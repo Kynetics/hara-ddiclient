@@ -17,7 +17,6 @@ data class HaraClientData constructor(
         val tenant: String,
         val controllerId: String,
         val serverUrl: String,
-        val serverType: ServerType = ServerType.UPDATE_FACTORY,
         val gatewayToken: String? = null,
         val targetToken: String? = null,
 ) {
@@ -46,5 +45,4 @@ data class HaraClientData constructor(
         }
     }
 
-    enum class ServerType { UPDATE_FACTORY, HAWKBIT }
 }

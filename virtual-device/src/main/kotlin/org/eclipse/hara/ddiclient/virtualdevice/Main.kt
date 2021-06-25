@@ -30,7 +30,6 @@ fun main() = runBlocking {
                 tenant,
                 controllerIdGenerator.invoke(),
                 url,
-                HaraClientData.ServerType.UPDATE_FACTORY,
                 gatewayToken
             )
 
