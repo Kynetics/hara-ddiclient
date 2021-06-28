@@ -51,7 +51,7 @@ Create the Service, add the observer and start the service:
     ufService.start();
 
 ## Third-Party Libraries
-* [Retrofit](http://square.github.io/retrofit/) library
+For information on the libraries used by this project see [NOTICE](NOTICE.md)
 
 ## Authors
 * **Daniele Sergio** - *Initial work* - [danielesergio](https://github.com/danielesergio)
