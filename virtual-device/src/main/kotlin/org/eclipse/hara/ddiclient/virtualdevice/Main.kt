@@ -53,7 +53,7 @@ private fun getClient(clientData: HaraClientData, virtualDeviceId: Int): HaraCli
         ConfigDataProviderImpl(virtualDeviceId, clientData),
         DeploymentPermitProviderImpl(),
         listOf(MessageListenerImpl(virtualDeviceId, clientData)),
-        UpdaterImpl(virtualDeviceId, clientData)
+        listOf(UpdaterImpl(virtualDeviceId, clientData))
     )
     return client
 }

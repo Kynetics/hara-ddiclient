@@ -124,8 +124,7 @@ class DdiClientDefaultImpl private constructor(private val ddiRestApi: DdiRestAp
 
         val LOG = LoggerFactory.getLogger(DdiClient::class.java)!!
 
-        fun of(haraClientData: HaraClientData): DdiClientDefaultImpl {
-            val httpBuilder = OkHttpClient.Builder()
+        fun of(haraClientData: HaraClientData, httpBuilder:OkHttpClient.Builder): DdiClientDefaultImpl {
             val authentications = HashSet<Authentication>()
             with(haraClientData) {
                 if (gatewayToken != null) {

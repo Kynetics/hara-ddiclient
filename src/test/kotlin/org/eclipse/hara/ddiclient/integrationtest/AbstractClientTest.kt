@@ -66,7 +66,7 @@ abstract class AbstractClientTest {
                 configDataProvider,
                 deploymentPermitProvider,
                 listOf(eventListener, *messageListeners.toTypedArray()),
-                updater
+                listOf(updater)
         )
         client
     }

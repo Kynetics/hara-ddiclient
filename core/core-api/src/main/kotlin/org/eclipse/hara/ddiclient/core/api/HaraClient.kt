@@ -10,6 +10,8 @@
 
 package org.eclipse.hara.ddiclient.core.api
 
+import okhttp3.OkHttpClient
+
 interface HaraClient {
 
     fun init(
@@ -18,7 +20,8 @@ interface HaraClient {
             configDataProvider: ConfigDataProvider,
             deploymentPermitProvider: DeploymentPermitProvider,
             messageListeners: List<MessageListener>,
-            vararg updaters: Updater
+            updaters: List<Updater>,
+            httpBuilder: OkHttpClient.Builder = OkHttpClient.Builder()
     )
 
     fun startAsync()
