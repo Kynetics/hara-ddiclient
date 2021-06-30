@@ -117,6 +117,9 @@ project(':core') {
 project(':core:core-api') {
     group 'org.eclipse.hara.hara-ddiclient.core'
     version app_version
+    dependencies {
+        implementation deps.okhttp
+    }
 }
 
 project(':virtual-device'){
@@ -131,7 +134,7 @@ project(':virtual-device'){
         implementation project(':ddiapi-client:ddiapi-client-api')
         implementation deps.joda
         implementation deps.slf4j_simple
-
+        implementation deps.okhttp
     }
 
     mainClassName = 'org.eclipse.hara.ddiclient.virtualdevice.MainKt'

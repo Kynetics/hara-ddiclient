@@ -17,6 +17,7 @@ import org.eclipse.hara.ddiclient.core.actors.ConnectionManager
 import org.eclipse.hara.ddiclient.core.actors.RootActor
 import org.eclipse.hara.ddiclient.core.actors.HaraClientContext
 import kotlinx.coroutines.runBlocking
+import okhttp3.OkHttpClient
 import org.eclipse.hara.ddiclient.core.api.*
 
 class HaraClientDefaultImpl : HaraClient {
@@ -29,11 +30,12 @@ class HaraClientDefaultImpl : HaraClient {
             configDataProvider: ConfigDataProvider,
             deploymentPermitProvider: DeploymentPermitProvider,
             messageListeners: List<MessageListener>,
-            vararg updaters: Updater
-    ) {
+            updaters: List<Updater>,
+            httpBuilder: OkHttpClient.Builder
+            ) {
         rootActor = AbstractActor.actorOf("rootActor", HaraClientContext(
-                DdiClientDefaultImpl.of(haraClientData),
-                UpdaterRegistry(*updaters),
+                DdiClientDefaultImpl.of(haraClientData, httpBuilder),
+                UpdaterRegistry(*updaters.toTypedArray()),
                 configDataProvider,
                 PathResolver(directoryForArtifactsProvider),
                 deploymentPermitProvider,
