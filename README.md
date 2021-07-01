@@ -15,39 +15,60 @@ any JVM compatible language (Java, Kotlin, etc).
 To import this project use [jitpack](https://jitpack.io/) plugin.
 
 ## Example
-Create a class that implements the Observer interface:
+Create a class that implements the [DirectoryForArtifactsProvider](core/core-api/src/main/kotlin/org/eclipse/hara/ddiclient/core/api/DirectoryForArtifactsProvider.kt) interface:
 
-     private class ObserverState implements Observer {
-        @Override
-        public void update(Observable observable, Object o) {
-            if (o instanceof UFService.SharedEvent) {
-                ...
-            }
+    class DirectoryForArtifactsProviderImpl(): DirectoryForArtifactsProvider {
+        override fun directoryForArtifacts(): File {
+            ...
         }
-     }
+    }
 
-Create the Service, add the observer and start the service:
+Create a class that implements the [ConfigDataProvider](core/core-api/src/main/kotlin/org/eclipse/hara/ddiclient/core/api/ConfigDataProvider.kt) interface:
 
-    DdiRestApi api = new ClientBuilder()
-                .withBaseUrl("https://personal.updatefactory.io")
-                .withGatewayToken("[gatewayToken]")
-                .withHttpBuilder(new OkHttpClient.Builder())
-                .withOnTargetTokenFound(System.out::println)
-                .build();
+    class ConfigDataProviderImpl(): ConfigDataProvider {
+        override fun configData(): Map<String, String> {
+            ...
+        }
+    }
 
-    Map<String,String> map = new HashMap<>();
-    map.put("test","tes");
+Create a class that implements the [DeploymentPermitProvider](core/core-api/src/main/kotlin/org/eclipse/hara/ddiclient/core/api/DeploymentPermitProvider.kt) interface:
 
-    ufService = UFService.builder()
-                .withClient(api)
-                .withControllerId("controllerId")
-                .withTargetData(()->map)
-                .withTenant("test")
-                .build();
+    class DeploymentPermitProviderImpl: DeploymentPermitProvider {
+        override fun downloadAllowed(): Deferred<Boolean> {
+            ...
+        }
+        override fun updateAllowed(): Deferred<Boolean> {
+            ...
+        }
+    }
 
-    ufService.addObserver(new ObserverState());
+Create a class that implements the [MessageListener](core/core-api/src/main/kotlin/org/eclipse/hara/ddiclient/core/api/MessageListener.kt) interface:
 
-    ufService.start();
+    class MessageListenerImpl(): MessageListener {
+            override fun onMessage(message: MessageListener.Message) {
+            ...
+        }
+    }
+
+Create a class that implements the [Updater](core/core-api/src/main/kotlin/org/eclipse/hara/ddiclient/core/api/Updater.kt) interface:
+
+    class UpdaterImpl(): Updater {
+        override fun apply(modules: Set<Updater.SwModuleWithPath>,messenger: Updater.Messenger){
+            ...
+        }
+
+Create the Client, add the provider and return the client:
+
+    val client = HaraClientDefaultImpl()
+    client.init(
+        clientData,
+        DirectoryForArtifactsProviderImpl(),
+        ConfigDataProviderImpl(),
+        DeploymentPermitProviderImpl(),
+        listOf(MessageListenerImpl()),
+        listOf(UpdaterImpl())
+    )
+    return client
 
 ## Third-Party Libraries
 For information on the libraries used by this project see [NOTICE](NOTICE.md)
