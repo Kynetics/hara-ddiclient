@@ -55,7 +55,7 @@ For information on the libraries used by this project see [NOTICE](NOTICE.md)
 ## Authors
 * **Daniele Sergio** - *Initial work* - [danielesergio](https://github.com/danielesergio)
 
-See also the list of [contributors](https://github.com/Kynetics/uf-ddiclient/graphs/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/Kynetics/hara-ddiclient/graphs/contributors) who participated in this project.
 
 ## License
 Copyright © 2017-2021, [Kynetics LLC](https://www.kynetics.com).
