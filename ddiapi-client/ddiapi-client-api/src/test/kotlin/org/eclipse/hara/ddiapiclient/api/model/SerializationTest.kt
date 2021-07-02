@@ -21,7 +21,7 @@ class SerializationTest {
 
     @DataProvider(name = "Serialization")
     fun objectsToSerialize(): Array<Any> {
-        val cfgDataReq = CfgDataReq.of(emptyMap(), CfgDataReq.Mod.merge)
+        val cfgDataReq = ConfigurationDataRequest.of(emptyMap(), ConfigurationDataRequest.Mode.merge)
         return arrayOf(cfgDataReq.copy(data = mapOf("ciao" to "miao")))
     }
 

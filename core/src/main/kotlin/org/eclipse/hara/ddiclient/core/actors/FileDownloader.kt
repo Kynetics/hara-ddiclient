@@ -11,7 +11,7 @@
 package org.eclipse.hara.ddiclient.core.actors
 
 import org.eclipse.hara.ddiapiclient.api.DdiClient
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest
 import org.eclipse.hara.ddiclient.core.api.MessageListener
 import org.eclipse.hara.ddiclient.core.inputstream.FilterInputStreamWithProgress
 import org.eclipse.hara.ddiclient.core.md5
@@ -141,9 +141,9 @@ private constructor(
                 val limit = queue.peek() ?: 1.0
                 if (progress > limit) {
                     feedback(actionId,
-                            DeplFdbkReq.Sts.Exc.proceeding,
-                            DeplFdbkReq.Sts.Rslt.Prgrs(0, 0),
-                            DeplFdbkReq.Sts.Rslt.Fnsh.none,
+                            DeploymentFeedbackRequest.Status.Execution.proceeding,
+                            DeploymentFeedbackRequest.Status.Result.Progress(0, 0),
+                            DeploymentFeedbackRequest.Status.Result.Finished.none,
                             "Downloading file named ${fileToDownload.fileName} " +
                                     "- ${progress.toPercentage(2)}")
                     while (progress > queue.peek() ?: 1.0 && queue.isNotEmpty()) {
@@ -155,8 +155,8 @@ private constructor(
         }
     }
 
-    private suspend fun feedback(id: String, execution: DeplFdbkReq.Sts.Exc, progress: DeplFdbkReq.Sts.Rslt.Prgrs, finished: DeplFdbkReq.Sts.Rslt.Fnsh, vararg messages: String) {
-        val deplFdbkReq = DeplFdbkReq.newInstance(id, execution, progress, finished, *messages)
+    private suspend fun feedback(id: String, execution: DeploymentFeedbackRequest.Status.Execution, progress: DeploymentFeedbackRequest.Status.Result.Progress, finished: DeploymentFeedbackRequest.Status.Result.Finished, vararg messages: String) {
+        val deplFdbkReq = DeploymentFeedbackRequest.newInstance(id, execution, progress, finished, *messages)
         connectionManager.send(ConnectionManager.Companion.Message.In.DeploymentFeedback(deplFdbkReq))
     }
 

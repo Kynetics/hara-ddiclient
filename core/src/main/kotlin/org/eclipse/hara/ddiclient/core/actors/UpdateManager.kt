@@ -10,7 +10,7 @@
 
 package org.eclipse.hara.ddiclient.core.actors
 
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest
 import org.eclipse.hara.ddiclient.core.UpdaterRegistry
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.In.DeploymentFeedback
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.Out.DeploymentInfo
@@ -42,17 +42,17 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
                     LOG.warn("update ${updaterError[0].first} failed!")
                     parent!!.send(DeploymentManager.Companion.Message.UpdateFailed)
                     sendFeedback(msg.info.id,
-                            DeplFdbkReq.Sts.Exc.closed,
-                            DeplFdbkReq.Sts.Rslt.Prgrs(updaters.size, updaterError[0].first),
-                            DeplFdbkReq.Sts.Rslt.Fnsh.failure,
+                            DeploymentFeedbackRequest.Status.Execution.closed,
+                            DeploymentFeedbackRequest.Status.Result.Progress(updaters.size, updaterError[0].first),
+                            DeploymentFeedbackRequest.Status.Result.Finished.failure,
                             *details.toTypedArray())
                     notificationManager.send(MessageListener.Message.Event.UpdateFinished(successApply = false, details = details))
                 } else {
                     parent!!.send(DeploymentManager.Companion.Message.UpdateFinished)
                     sendFeedback(msg.info.id,
-                            DeplFdbkReq.Sts.Exc.closed,
-                            DeplFdbkReq.Sts.Rslt.Prgrs(updaters.size, updaters.size),
-                            DeplFdbkReq.Sts.Rslt.Fnsh.success,
+                            DeploymentFeedbackRequest.Status.Execution.closed,
+                            DeploymentFeedbackRequest.Status.Result.Progress(updaters.size, updaters.size),
+                            DeploymentFeedbackRequest.Status.Result.Finished.success,
                             *details.toTypedArray())
                     notificationManager.send(MessageListener.Message.Event.UpdateFinished(successApply = true, details = details))
                 }
@@ -77,9 +77,9 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
                         override fun sendMessageToServer(vararg msg: String) {
                             runBlocking {
                                 sendFeedback(message.info.id,
-                                        DeplFdbkReq.Sts.Exc.proceeding,
-                                        DeplFdbkReq.Sts.Rslt.Prgrs(updaters.size, index),
-                                        DeplFdbkReq.Sts.Rslt.Fnsh.none,
+                                        DeploymentFeedbackRequest.Status.Execution.proceeding,
+                                        DeploymentFeedbackRequest.Status.Result.Progress(updaters.size, index),
+                                        DeploymentFeedbackRequest.Status.Result.Finished.none,
                                         *msg)
                             }
                         }
@@ -94,12 +94,12 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
 
     private suspend fun sendFeedback(
             id: String,
-            execution: DeplFdbkReq.Sts.Exc,
-            progress: DeplFdbkReq.Sts.Rslt.Prgrs,
-            finished: DeplFdbkReq.Sts.Rslt.Fnsh,
+            execution: DeploymentFeedbackRequest.Status.Execution,
+            progress: DeploymentFeedbackRequest.Status.Result.Progress,
+            finished: DeploymentFeedbackRequest.Status.Result.Finished,
             vararg messages: String
     ) {
-        val request = DeplFdbkReq.newInstance(id, execution, progress, finished, *messages)
+        val request = DeploymentFeedbackRequest.newInstance(id, execution, progress, finished, *messages)
         connectionManager.send(DeploymentFeedback(request))
     }
 

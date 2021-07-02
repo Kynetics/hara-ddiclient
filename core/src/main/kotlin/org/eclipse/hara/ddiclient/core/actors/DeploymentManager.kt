@@ -10,10 +10,10 @@
 
 package org.eclipse.hara.ddiclient.core.actors
 
-import org.eclipse.hara.ddiapiclient.api.model.CnclFdbkReq
-import org.eclipse.hara.ddiapiclient.api.model.DeplBaseResp
-import org.eclipse.hara.ddiapiclient.api.model.DeplBaseResp.Depl.Appl
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq
+import org.eclipse.hara.ddiapiclient.api.model.CancelFeedbackRequest
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse.Deployment.ProvisioningType
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest
 import org.eclipse.hara.ddiclient.core.actors.ActionManager.Companion.Message.CancelForced
 import org.eclipse.hara.ddiclient.core.actors.ActionManager.Companion.Message.UpdateStopped
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.Out.DeploymentCancelInfo
@@ -55,16 +55,16 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
 
         when {
 
-            msg is DeploymentInfo && msg.downloadIs(Appl.forced)  -> {
+            msg is DeploymentInfo && msg.downloadIs(ProvisioningType.forced)  -> {
                 become(downloadingReceive(state.copy(deplBaseResp = msg.info)))
                 child("downloadManager")!!.send(msg)
             }
 
-            msg is DeploymentInfo && msg.downloadIs(Appl.attempt) -> {
+            msg is DeploymentInfo && msg.downloadIs(ProvisioningType.attempt) -> {
                 attempt(msg)
             }
 
-            msg is DeploymentInfo && msg.downloadIs(Appl.skip) -> {
+            msg is DeploymentInfo && msg.downloadIs(ProvisioningType.skip) -> {
                 LOG.warn("skip download not yet implemented (used attempt)")
                 attempt(msg)
             }
@@ -80,7 +80,7 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
     private fun waitingDownloadAuthorization(state: State): Receive = { msg ->
         when {
 
-            msg is DeploymentInfo && msg.downloadIs(Appl.attempt) && !msg.forceAuthRequest -> {}
+            msg is DeploymentInfo && msg.downloadIs(ProvisioningType.attempt) && !msg.forceAuthRequest -> {}
 
             msg is DeploymentInfo -> {
                 become(beginningReceive(state))
@@ -110,12 +110,12 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
     private fun downloadingReceive(state: State): Receive = { msg ->
         when {
 
-            msg is Message.DownloadFinished && state.updateIs(Appl.forced) -> {
+            msg is Message.DownloadFinished && state.updateIs(ProvisioningType.forced) -> {
                 become(updatingReceive())
                 child("updateManager")!!.send(DeploymentInfo(state.deplBaseResp!!))
             }
 
-            msg is Message.DownloadFinished && state.updateIs(Appl.attempt) -> {
+            msg is Message.DownloadFinished && state.updateIs(ProvisioningType.attempt) -> {
                 val message = "Waiting authorization to update"
                 LOG.info(message)
                 sendFeedback(message)
@@ -192,9 +192,9 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
             is DeploymentCancelInfo -> {
                 LOG.info("can't stop update")
                 connectionManager.send(ConnectionManager.Companion.Message.In.CancelFeedback(
-                        CnclFdbkReq.newInstance(msg.info.cancelAction.stopId,
-                                CnclFdbkReq.Sts.Exc.rejected,
-                                CnclFdbkReq.Sts.Rslt.Fnsh.success,
+                        CancelFeedbackRequest.newInstance(msg.info.cancelAction.stopId,
+                                CancelFeedbackRequest.Status.Execution.rejected,
+                                CancelFeedbackRequest.Status.Result.Finished.success,
                                 "Update already started. Can't be stopped.")))
             }
 
@@ -206,9 +206,9 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
 
     private suspend fun stopUpdateAndNotify(msg: DeploymentCancelInfo) {
         connectionManager.send(ConnectionManager.Companion.Message.In.CancelFeedback(
-                CnclFdbkReq.newInstance(msg.info.cancelAction.stopId,
-                        CnclFdbkReq.Sts.Exc.closed,
-                        CnclFdbkReq.Sts.Rslt.Fnsh.success)))
+                CancelFeedbackRequest.newInstance(msg.info.cancelAction.stopId,
+                        CancelFeedbackRequest.Status.Execution.closed,
+                        CancelFeedbackRequest.Status.Result.Finished.success)))
         stopUpdate()
     }
 
@@ -219,7 +219,7 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         parent!!.send(UpdateStopped)
     }
 
-    private fun DeploymentInfo.downloadIs(level: Appl): Boolean {
+    private fun DeploymentInfo.downloadIs(level: ProvisioningType): Boolean {
         return this.info.deployment.download == level
     }
 
@@ -235,10 +235,10 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
     private suspend fun sendFeedback(id: String, vararg messages: String) {
         connectionManager.send(
                 ConnectionManager.Companion.Message.In.DeploymentFeedback(
-                        DeplFdbkReq.newInstance(id,
-                                DeplFdbkReq.Sts.Exc.proceeding,
-                                DeplFdbkReq.Sts.Rslt.Prgrs(0, 0),
-                                DeplFdbkReq.Sts.Rslt.Fnsh.none,
+                        DeploymentFeedbackRequest.newInstance(id,
+                                DeploymentFeedbackRequest.Status.Execution.proceeding,
+                                DeploymentFeedbackRequest.Status.Result.Progress(0, 0),
+                                DeploymentFeedbackRequest.Status.Result.Finished.none,
                                 *messages
                         )
                 )
@@ -248,8 +248,8 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
     companion object {
         fun of(scope: ActorScope) = DeploymentManager(scope)
 
-        data class State(val deplBaseResp: DeplBaseResp? = null) {
-            fun updateIs(level: Appl): Boolean = deplBaseResp!!.deployment.update == level
+        data class State(val deplBaseResp: DeploymentBaseResponse? = null) {
+            fun updateIs(level: ProvisioningType): Boolean = deplBaseResp!!.deployment.update == level
         }
 
         sealed class Message {

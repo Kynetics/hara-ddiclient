@@ -10,13 +10,13 @@
 
 package org.eclipse.hara.ddiapiclient.api
 
-import org.eclipse.hara.ddiapiclient.api.model.ArtfctResp
-import org.eclipse.hara.ddiapiclient.api.model.CfgDataReq
-import org.eclipse.hara.ddiapiclient.api.model.CnclActResp
-import org.eclipse.hara.ddiapiclient.api.model.CnclFdbkReq
-import org.eclipse.hara.ddiapiclient.api.model.CtrlBaseResp
-import org.eclipse.hara.ddiapiclient.api.model.DeplBaseResp
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq
+import org.eclipse.hara.ddiapiclient.api.model.ArtifactResponse
+import org.eclipse.hara.ddiapiclient.api.model.ConfigurationDataRequest
+import org.eclipse.hara.ddiapiclient.api.model.CancelActionResponse
+import org.eclipse.hara.ddiapiclient.api.model.CancelFeedbackRequest
+import org.eclipse.hara.ddiapiclient.api.model.ControllerBaseResponse
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest
 import org.eclipse.hara.ddiapiclient.security.Authentication
 import org.eclipse.hara.ddiapiclient.security.HawkbitAuthenticationRequestInterceptor
 import java.io.InputStream
@@ -33,62 +33,62 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class DdiClientDefaultImpl private constructor(private val ddiRestApi: DdiRestApi, private val tenant: String, private val controllerId: String) : DdiClient {
 
-    override suspend fun getSoftwareModulesArtifacts(softwareModuleId: String): List<ArtfctResp> {
+    override suspend fun getSoftwareModulesArtifacts(softwareModuleId: String): List<ArtifactResponse> {
         LOG.debug("getSoftwareModulesArtifacts({})", softwareModuleId)
         val artifact = ddiRestApi.getSoftwareModulesArtifacts(tenant, controllerId, softwareModuleId)
         LOG.debug("{}", artifact)
         return artifact
     }
 
-    override suspend fun putConfigData(data: CfgDataReq, onSuccessConfigData: () -> Unit) {
-        LOG.debug("putConfigData({})", CfgDataReq)
+    override suspend fun putConfigData(data: ConfigurationDataRequest, onSuccessConfigData: () -> Unit) {
+        LOG.debug("putConfigData({})", ConfigurationDataRequest)
         val responseCode = ddiRestApi.putConfigData(tenant, controllerId, data).code()
         if (responseCode in 200 until 300) {
             onSuccessConfigData.invoke()
         }
     }
 
-    override suspend fun getControllerActions(): CtrlBaseResp {
+    override suspend fun getControllerActions(): ControllerBaseResponse {
         LOG.debug("getControllerActions()")
         val response = ddiRestApi.getControllerActions(tenant, controllerId)
         LOG.debug("{}", response)
         return handleResponse(response)
     }
 
-    override suspend fun onControllerActionsChange(etag: String, onChange: OnResourceChange<CtrlBaseResp>) {
+    override suspend fun onControllerActionsChange(etag: String, onChange: OnResourceChange<ControllerBaseResponse>) {
         LOG.debug("onDeploymentActionDetailsChange({})", etag)
         val response = ddiRestApi.getControllerActions(tenant, controllerId, etag)
         LOG.debug("{}", response)
         handleOnChangeResponse(response, etag, "BaseResource", onChange)
     }
 
-    override suspend fun getDeploymentActionDetails(actionId: String, historyCount: Int): DeplBaseResp {
+    override suspend fun getDeploymentActionDetails(actionId: String, historyCount: Int): DeploymentBaseResponse {
         LOG.debug("getDeploymentActionDetails($actionId, $historyCount)")
         val response = ddiRestApi.getDeploymentActionDetails(tenant, controllerId, actionId, null, historyCount)
         LOG.debug("{}", response)
         return handleResponse(response)
     }
 
-    override suspend fun onDeploymentActionDetailsChange(actionId: String, historyCount: Int, etag: String, onChange: OnResourceChange<DeplBaseResp>) {
+    override suspend fun onDeploymentActionDetailsChange(actionId: String, historyCount: Int, etag: String, onChange: OnResourceChange<DeploymentBaseResponse>) {
         LOG.debug("onDeploymentActionDetailsChange($actionId, $historyCount, $etag)")
         val response = ddiRestApi.getDeploymentActionDetails(tenant, controllerId, actionId, null, historyCount, etag)
         LOG.debug("{}", response)
         handleOnChangeResponse(response, etag, "Deployment", onChange)
     }
 
-    override suspend fun getCancelActionDetails(actionId: String): CnclActResp {
+    override suspend fun getCancelActionDetails(actionId: String): CancelActionResponse {
         LOG.debug("getCancelActionDetails($actionId)")
         val response = ddiRestApi.getCancelActionDetails(tenant, controllerId, actionId)
         LOG.debug("{}", response)
         return response
     }
 
-    override suspend fun postDeploymentActionFeedback(actionId: String, feedback: DeplFdbkReq) {
+    override suspend fun postDeploymentActionFeedback(actionId: String, feedback: DeploymentFeedbackRequest) {
         LOG.debug("postDeploymentActionFeedback({},{})", actionId, feedback)
         ddiRestApi.postDeploymentActionFeedback(tenant, controllerId, actionId, feedback)
     }
 
-    override suspend fun postCancelActionFeedback(actionId: String, feedback: CnclFdbkReq) {
+    override suspend fun postCancelActionFeedback(actionId: String, feedback: CancelFeedbackRequest) {
         LOG.debug("postCancelActionFeedback({},{})", actionId, feedback)
         ddiRestApi.postCancelActionFeedback(tenant, controllerId, actionId, feedback)
     }

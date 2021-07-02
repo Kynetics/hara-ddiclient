@@ -11,12 +11,12 @@
 package org.eclipse.hara.ddiclient.core.actors
 
 import org.eclipse.hara.ddiapiclient.api.DdiClient
-import org.eclipse.hara.ddiapiclient.api.model.CfgDataReq
-import org.eclipse.hara.ddiapiclient.api.model.CnclActResp
-import org.eclipse.hara.ddiapiclient.api.model.CnclFdbkReq
-import org.eclipse.hara.ddiapiclient.api.model.CtrlBaseResp
-import org.eclipse.hara.ddiapiclient.api.model.DeplBaseResp
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq
+import org.eclipse.hara.ddiapiclient.api.model.ConfigurationDataRequest
+import org.eclipse.hara.ddiapiclient.api.model.CancelActionResponse
+import org.eclipse.hara.ddiapiclient.api.model.CancelFeedbackRequest
+import org.eclipse.hara.ddiapiclient.api.model.ControllerBaseResponse
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.In
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.Out
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.Out.Err.ErrMsg
@@ -99,7 +99,7 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         }
     }
 
-    private suspend fun onControllerBaseChange(state: State, s: State, res: CtrlBaseResp, newControllerBaseEtag: String) {
+    private suspend fun onControllerBaseChange(state: State, s: State, res: ControllerBaseResponse, newControllerBaseEtag: String) {
         if (res.requireConfigData() || !configDataProvider.isUpdated()) {
             this.send(Out.ConfigDataRequired, state)
         }
@@ -238,15 +238,15 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
                 data class Register(val listener: ActorRef) : In()
                 data class Unregister(val listener: ActorRef) : In()
                 data class SetPing(val duration: Duration?) : In()
-                data class DeploymentFeedback(val feedback: DeplFdbkReq)
-                data class CancelFeedback(val feedback: CnclFdbkReq)
-                data class ConfigDataFeedback(val cfgDataReq: CfgDataReq)
+                data class DeploymentFeedback(val feedback: DeploymentFeedbackRequest)
+                data class CancelFeedback(val feedback: CancelFeedbackRequest)
+                data class ConfigDataFeedback(val cfgDataReq: ConfigurationDataRequest)
             }
 
             open class Out : Message() {
                 object ConfigDataRequired : Out()
-                data class DeploymentInfo(val info: DeplBaseResp, val forceAuthRequest:Boolean  = false) : Out()
-                data class DeploymentCancelInfo(val info: CnclActResp) : Out()
+                data class DeploymentInfo(val info: DeploymentBaseResponse, val forceAuthRequest:Boolean  = false) : Out()
+                data class DeploymentCancelInfo(val info: CancelActionResponse) : Out()
 
                 object NoAction : Out()
 

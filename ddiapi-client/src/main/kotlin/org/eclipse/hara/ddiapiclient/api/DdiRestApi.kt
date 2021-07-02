@@ -9,13 +9,13 @@
 */
 package org.eclipse.hara.ddiapiclient.api
 
-import org.eclipse.hara.ddiapiclient.api.model.ArtfctResp
-import org.eclipse.hara.ddiapiclient.api.model.CfgDataReq
-import org.eclipse.hara.ddiapiclient.api.model.CnclActResp
-import org.eclipse.hara.ddiapiclient.api.model.CnclFdbkReq
-import org.eclipse.hara.ddiapiclient.api.model.CtrlBaseResp
-import org.eclipse.hara.ddiapiclient.api.model.DeplBaseResp
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq
+import org.eclipse.hara.ddiapiclient.api.model.ArtifactResponse
+import org.eclipse.hara.ddiapiclient.api.model.ConfigurationDataRequest
+import org.eclipse.hara.ddiapiclient.api.model.CancelActionResponse
+import org.eclipse.hara.ddiapiclient.api.model.CancelFeedbackRequest
+import org.eclipse.hara.ddiapiclient.api.model.ControllerBaseResponse
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -53,7 +53,7 @@ interface DdiRestApi {
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
         @Path("softwareModuleId") softwareModuleId: String
-    ): List<ArtfctResp>
+    ): List<ArtifactResponse>
 
     /**
      * Root resource for an individual [Target].
@@ -70,7 +70,7 @@ interface DdiRestApi {
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
         @Header(value = "If-None-Match") etag: String = ""
-    ): Response<CtrlBaseResp>
+    ): Response<ControllerBaseResponse>
 
     /**
      * Handles GET [DdiArtifact] download request.
@@ -115,7 +115,7 @@ interface DdiRestApi {
         @Query(value = "c") resource: Int?,
         @Query(value = "actionHistory") actionHistoryMessageCount: Int?,
         @Header(value = "If-None-Match") etag: String = ""
-    ): Response<DeplBaseResp>
+    ): Response<DeploymentBaseResponse>
 
     /**
      * This is the feedback channel for the [DdiDeploymentBase] action.
@@ -138,7 +138,7 @@ interface DdiRestApi {
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
         @Path("actionId") actionId: String?,
-        @Body feedback: DeplFdbkReq
+        @Body feedback: DeploymentFeedbackRequest
     ): Response<Unit>
 
     /**
@@ -159,7 +159,7 @@ interface DdiRestApi {
     suspend fun putConfigData(
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
-        @Body configData: CfgDataReq
+        @Body configData: ConfigurationDataRequest
     ): Response<Unit>
 
     /**
@@ -181,7 +181,7 @@ interface DdiRestApi {
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
         @Path("actionId") actionId: String
-    ): CnclActResp
+    ): CancelActionResponse
 
     /**
      * RequestMethod.POST method receiving the [DdiActionFeedback] from
@@ -206,6 +206,6 @@ interface DdiRestApi {
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
         @Path("actionId") actionId: String?,
-        @Body feedback: CnclFdbkReq
+        @Body feedback: CancelFeedbackRequest
     ): Unit
 }

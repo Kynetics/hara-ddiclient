@@ -10,17 +10,17 @@
 
 package org.eclipse.hara.ddiclient.core.actors
 
-import org.eclipse.hara.ddiapiclient.api.model.DeplBaseResp
-import org.eclipse.hara.ddiapiclient.api.model.DeplBaseResp.Depl.Appl.attempt
-import org.eclipse.hara.ddiapiclient.api.model.DeplBaseResp.Depl.Appl.forced
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq.Sts.Exc
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq.Sts.Exc.closed
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq.Sts.Exc.proceeding
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq.Sts.Rslt.Fnsh
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq.Sts.Rslt.Fnsh.failure
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq.Sts.Rslt.Fnsh.none
-import org.eclipse.hara.ddiapiclient.api.model.DeplFdbkReq.Sts.Rslt.Prgrs
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse.Deployment.ProvisioningType.attempt
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse.Deployment.ProvisioningType.forced
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest.Status.Execution
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest.Status.Execution.closed
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest.Status.Execution.proceeding
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest.Status.Result.Finished
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest.Status.Result.Finished.failure
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest.Status.Result.Finished.none
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest.Status.Result.Progress
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.In.DeploymentFeedback
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.Out.DeploymentInfo
 import org.eclipse.hara.ddiclient.core.actors.DeploymentManager.Companion.Message.DownloadFailed
@@ -65,7 +65,7 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
 
                     val dms = createDownloadsManagers(msg.info, md5s)
                     become(downloadingReceive(State(msg.info, dms)))
-                    feedback(msg.info.id, proceeding, Prgrs(dms.size, 0), none,
+                    feedback(msg.info.id, proceeding, Progress(dms.size, 0), none,
                             "Start downloading ${dms.size} files")
                     dms.values.forEach {
                         it.downloader.send(FileDownloader.Companion.Message.Start)
@@ -104,7 +104,7 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         val newDownload = download.copy(state = download.state.copy(status = status, messages = newErrMessages))
         val newState = state.copy(downloads = state.downloads + (md5 to newDownload))
         val downloads = newState.downloads.values
-        val progress = Prgrs(
+        val progress = Progress(
                 downloads.size,
                 downloads.count { it.state.status == Status.SUCCESS })
         when {
@@ -129,17 +129,17 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         }
     }
 
-    private suspend fun feedback(id: String, execution: Exc, progress: Prgrs, finished: Fnsh, vararg messages: String) {
-        val deplFdbkReq = DeplFdbkReq.newInstance(id, execution, progress, finished, *messages)
+    private suspend fun feedback(id: String, execution: Execution, progress: Progress, finished: Finished, vararg messages: String) {
+        val deplFdbkReq = DeploymentFeedbackRequest.newInstance(id, execution, progress, finished, *messages)
         connectionManager.send(DeploymentFeedback(deplFdbkReq))
     }
 
-    private fun md5OfFilesToBeDownloaded(dbr: DeplBaseResp): Set<String> = when (dbr.deployment.download) {
+    private fun md5OfFilesToBeDownloaded(dbr: DeploymentBaseResponse): Set<String> = when (dbr.deployment.download) {
         attempt, forced -> registry.allRequiredArtifactsFor(dbr.deployment.chunks).map { it.md5 }.toSet()
         else -> emptySet()
     }
 
-    private fun createDownloadsManagers(dbr: DeplBaseResp, md5s: Set<String>): Map<String, Download> {
+    private fun createDownloadsManagers(dbr: DeploymentBaseResponse, md5s: Set<String>): Map<String, Download> {
         val wd = pathResolver.updateDir(dbr.id)
         if (!wd.exists()) {
             wd.mkdirs()
@@ -182,7 +182,7 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         fun of(scope: ActorScope) = DownloadManager(scope)
 
         data class State(
-                val deplBaseResp: DeplBaseResp,
+                val deplBaseResp: DeploymentBaseResponse,
                 val downloads: Map<String, Download> = emptyMap()
         ) {
             data class Download(val downloader: ActorRef, val state: State = State()) {

@@ -10,17 +10,17 @@
 
 package org.eclipse.hara.ddiclient.core
 
-import org.eclipse.hara.ddiapiclient.api.model.DeplBaseResp
+import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse
 import org.eclipse.hara.ddiclient.core.api.Updater
 
 class UpdaterRegistry(private vararg val updaters: Updater) {
 
-    fun allRequiredArtifactsFor(chunks: Set<DeplBaseResp.Depl.Cnk>): Set<Updater.Hashes> =
+    fun allRequiredArtifactsFor(chunks: Set<DeploymentBaseResponse.Deployment.Chunks>): Set<Updater.Hashes> =
             updaters.flatMap { u ->
                 u.requiredSoftwareModulesAndPriority(chunks.map { convert(it) }.toSet())
                         .swModules.flatMap { it.hashes } }.toSet()
 
-    fun allUpdatersWithSwModulesOrderedForPriority(chunks: Set<DeplBaseResp.Depl.Cnk>): Set<UpdaterWithSwModule> {
+    fun allUpdatersWithSwModulesOrderedForPriority(chunks: Set<DeploymentBaseResponse.Deployment.Chunks>): Set<UpdaterWithSwModule> {
 
         val swModules = chunks.map { convert(it) }.toSet()
 
@@ -45,7 +45,7 @@ class UpdaterRegistry(private vararg val updaters: Updater) {
 
     data class UpdaterWithSwModule(val priority: Int, val updater: Updater, val softwareModules: Set<Updater.SwModule>)
 
-    private fun convert(cnk: DeplBaseResp.Depl.Cnk): Updater.SwModule =
+    private fun convert(cnk: DeploymentBaseResponse.Deployment.Chunks): Updater.SwModule =
             Updater.SwModule(
                     cnk.metadata?.map { convert(it) }?.toSet(),
                     cnk.part,
@@ -53,12 +53,12 @@ class UpdaterRegistry(private vararg val updaters: Updater) {
                     cnk.version,
                     cnk.artifacts.map { convert(it) }.toSet())
 
-    private fun convert(mtdt: DeplBaseResp.Depl.Cnk.Mtdt): Updater.SwModule.Metadata =
+    private fun convert(mtdt: DeploymentBaseResponse.Deployment.Chunks.Metadata): Updater.SwModule.Metadata =
             Updater.SwModule.Metadata(
                     mtdt.key,
                     mtdt.value)
 
-    private fun convert(artfct: DeplBaseResp.Depl.Cnk.Artfct): Updater.SwModule.Artifact =
+    private fun convert(artfct: DeploymentBaseResponse.Deployment.Chunks.Artifact): Updater.SwModule.Artifact =
             Updater.SwModule.Artifact(
                     artfct.filename,
                     Updater.Hashes(

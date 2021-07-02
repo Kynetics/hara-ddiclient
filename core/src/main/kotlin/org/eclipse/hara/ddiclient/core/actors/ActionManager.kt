@@ -10,8 +10,8 @@
 
 package org.eclipse.hara.ddiclient.core.actors
 
-import org.eclipse.hara.ddiapiclient.api.model.CfgDataReq
-import org.eclipse.hara.ddiapiclient.api.model.CnclFdbkReq
+import org.eclipse.hara.ddiapiclient.api.model.ConfigurationDataRequest
+import org.eclipse.hara.ddiapiclient.api.model.CancelFeedbackRequest
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.In
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.Out
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.Out.Err.ErrMsg
@@ -36,7 +36,7 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
                 val map = configDataProvider.configData()
 
                 if (map.isNotEmpty()) {
-                    val cdr = CfgDataReq.of(map, CfgDataReq.Mod.merge)
+                    val cdr = ConfigurationDataRequest.of(map, ConfigurationDataRequest.Mode.merge)
                     connectionManager.send(In.ConfigDataFeedback(cdr))
                 } else {
                     LOG.info("Config data required ignored because of map is empty")
@@ -103,18 +103,18 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         when {
             !state.inDeployment && registry.currentUpdateIsCancellable() -> {
                 connectionManager.send(In.CancelFeedback(
-                        CnclFdbkReq.newInstance(msg.info.cancelAction.stopId,
-                                CnclFdbkReq.Sts.Exc.closed,
-                                CnclFdbkReq.Sts.Rslt.Fnsh.success)))
+                        CancelFeedbackRequest.newInstance(msg.info.cancelAction.stopId,
+                                CancelFeedbackRequest.Status.Execution.closed,
+                                CancelFeedbackRequest.Status.Result.Finished.success)))
                 notificationManager.send(MessageListener.Message.State.CancellingUpdate)
                 connectionManager.send(In.SetPing(null))
             }
 
             !registry.currentUpdateIsCancellable() -> {
                 connectionManager.send(In.CancelFeedback(
-                        CnclFdbkReq.newInstance(msg.info.cancelAction.stopId,
-                                CnclFdbkReq.Sts.Exc.rejected,
-                                CnclFdbkReq.Sts.Rslt.Fnsh.success,
+                        CancelFeedbackRequest.newInstance(msg.info.cancelAction.stopId,
+                                CancelFeedbackRequest.Status.Execution.rejected,
+                                CancelFeedbackRequest.Status.Result.Finished.success,
                                 "Update already started. Can't be stopped.")))
             }
 
