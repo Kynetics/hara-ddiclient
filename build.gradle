@@ -40,6 +40,14 @@ subprojects {
         implementation deps.kotlin_x
         //runtime deps.kotlin_compiler
     }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+            }
+        }
+    }
 }
 
 project(':ddiapi-client') {
