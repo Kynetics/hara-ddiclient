@@ -1,4 +1,5 @@
-<h1 align="center">HARA ddi client</h1>
+<p align="center"><img src="hara_logo.png" width=20% height=20% ></p>
+<h1 align="center">Eclipse Hara™ - hara-ddiclient</h1>
 <p align="center">
 <a href="https://travis-ci.org/Kynetics/uf-ddiclient"><img alt="Build Status" src="https://travis-ci.org/Kynetics/uf-ddiclient.svg?branch=master"></a>
 <a href="https://codeclimate.com/github/Kynetics/uf-ddiclient/maintainability"><img src="https://api.codeclimate.com/v1/badges/e545d9c1d9256241e7f8/maintainability" /></a>
@@ -6,10 +7,11 @@
 <a href="https://www.eclipse.org/legal/epl-2.0"><img alt="License" src="https://img.shields.io/badge/License-EPL%202.0-red.svg"></a>
 </p>
 
-HARA-DDICLIENT is a Kotlin library that facilitates and speeds up the development 
+Hara-ddiclient is a Kotlin library that facilitates and speeds up the development
 of [DDI API](https://www.eclipse.org/hawkbit/apis/ddi_api/) clients for devices 
 connecting to [hawkBit](https://eclipse.org/hawkbit/) servers. It can be used from
 any JVM compatible language (Java, Kotlin, etc).
+Hara-ddiclient is part of the [Eclipse Hara™ project](https://projects.eclipse.org/projects/iot.hawkbit.hara)
 
 ## Install
 To import this project use [jitpack](https://jitpack.io/) plugin.
