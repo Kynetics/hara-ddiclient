@@ -15,10 +15,10 @@ import org.eclipse.hara.ddiapiclient.security.Authentication.AuthenticationType.
 /**
  * @author Daniele Sergio
  */
-class Authentication private constructor(internal val type: AuthenticationType, token: String) {
+class Authentication private constructor(val type: AuthenticationType, token: String) {
 
-    internal val headerValue: String
-    internal val header: String
+    val headerValue: String
+    val header: String
 
     init {
         headerValue = String.format(HEADER_VALUE_TEMPLATE, type.type, token)
