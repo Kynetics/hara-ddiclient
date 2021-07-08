@@ -17,13 +17,8 @@ import org.eclipse.hara.ddiapiclient.security.Authentication.AuthenticationType.
  */
 class Authentication private constructor(val type: AuthenticationType, token: String) {
 
-    val headerValue: String
-    val header: String
-
-    init {
-        headerValue = String.format(HEADER_VALUE_TEMPLATE, type.type, token)
-        header = type.header
-    }
+    val headerValue: String = String.format(HEADER_VALUE_TEMPLATE, type.type, token)
+    val header: String = type.header
 
     enum class AuthenticationType constructor(internal val type: String) {
         TARGET_TOKEN_AUTHENTICATION("TargetToken"),
