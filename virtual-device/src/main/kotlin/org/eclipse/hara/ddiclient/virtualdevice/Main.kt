@@ -23,7 +23,7 @@ import kotlin.random.Random.Default.nextLong
 @OptIn(DelicateCoroutinesApi::class)
 fun main() = runBlocking {
     Configuration.apply {
-        System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, logelLevel)
+        System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, logLevel)
 
         repeat(poolSize) {
             val clientData = HaraClientData(

@@ -15,7 +15,7 @@ import java.util.UUID
 
 object Configuration {
 
-    val logelLevel = env("HARA_LOG_LEVEL", "TRACE")
+    val logLevel = env("HARA_LOG_LEVEL", "TRACE")
 
     /**
      * Number of virtual device generated
