@@ -22,9 +22,9 @@ object Configuration {
      */
     val poolSize = env("HARA_CLIENT_POOL_SIZE", "1").toInt()
 
-    val tenant = env("HAWKBIT_TENANT", "TEST")
+    val tenant = env("HAWKBIT_TENANT", "DEFAULT")
     val controllerIdGenerator = { env("HAWKBIT_CONTROLLER_ID", UUID.randomUUID().toString()) }
-    val url = env("HAWKBIT_URL", "https://stage.updatefactory.io")
+    val url = env("HAWKBIT_URL", "https://hawkbit.eclipseprojects.io")
     val gatewayToken = env("HAWKBIT_GATEWAY_TOKEN", "")
 
     /**
