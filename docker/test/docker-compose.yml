@@ -32,7 +32,7 @@ services:
     - 8081:8080
 
     networks:
-    - uf-network
+    - hara-network
 
     volumes:
     - ./artifactrepo:/opt/hawkbit/artifactrepo
@@ -45,7 +45,7 @@ services:
   maria-db:
     image: mariadb:10.3
     networks:
-      - uf-network
+      - hara-network
     environment:
       - MYSQL_ROOT_PASSWORD=secret
       - MYSQL_USER=hawkbit
@@ -62,5 +62,5 @@ services:
 
   # ------------------------------------------------
 networks:
-  uf-network:
+  hara-network:
 
