@@ -35,7 +35,7 @@ services:
     - uf-network
 
     volumes:
-    - ./artifactrepo:/opt/uf-update-server/artifactrepo
+    - ./artifactrepo:/opt/hawkbit/artifactrepo
     depends_on:
       maria-db:
         condition: service_healthy
