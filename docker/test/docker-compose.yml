@@ -37,7 +37,8 @@ services:
     volumes:
     - ./artifactrepo:/opt/uf-update-server/artifactrepo
     depends_on:
-    - maria-db
+      maria-db:
+        condition: service_healthy
 
   # ------------------------------------------------
 
@@ -54,6 +55,10 @@ services:
       - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql:Z
     ports:
       - 3307:3306
+    healthcheck:
+      test: '/bin/sh -c "mysqladmin -u$$MYSQL_USER -P3306 -p$$MYSQL_PASSWORD ping"'
+      interval: 10s
+      start_period: 30s
 
   # ------------------------------------------------
 networks:
