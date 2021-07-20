@@ -23,9 +23,8 @@ DROP TABLE IF EXISTS `schema_version`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `schema_version` (
-  `version_rank` int(11) NOT NULL,
   `installed_rank` int(11) NOT NULL,
-  `version` varchar(50) NOT NULL,
+  `version` varchar(50) DEFAULT NULL,
   `description` varchar(200) NOT NULL,
   `type` varchar(20) NOT NULL,
   `script` varchar(1000) NOT NULL,
@@ -34,9 +33,7 @@ CREATE TABLE `schema_version` (
   `installed_on` timestamp NOT NULL DEFAULT current_timestamp(),
   `execution_time` int(11) NOT NULL,
   `success` tinyint(1) NOT NULL,
-  PRIMARY KEY (`version`),
-  KEY `schema_version_vr_idx` (`version_rank`),
-  KEY `schema_version_ir_idx` (`installed_rank`),
+  PRIMARY KEY (`installed_rank`),
   KEY `schema_version_s_idx` (`success`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -47,7 +44,7 @@ CREATE TABLE `schema_version` (
 
 LOCK TABLES `schema_version` WRITE;
 /*!40000 ALTER TABLE `schema_version` DISABLE KEYS */;
-INSERT INTO `schema_version` VALUES (1,1,'1.0.1','init   ','SQL','MYSQL/V1_0_1__init___MYSQL.sql',1018732788,'hawkbit','2019-03-07 16:10:59',151,1),(13,13,'1.10.0','advanced rolloutgroup  ','SQL','MYSQL/V1_10_0__advanced_rolloutgroup__MYSQL.sql',664507985,'hawkbit','2019-03-07 16:10:59',2,1),(14,14,'1.10.1','consolidate artifact sha1  ','SQL','MYSQL/V1_10_1__consolidate_artifact_sha1__MYSQL.sql',-360463156,'hawkbit','2019-03-07 16:10:59',8,1),(15,15,'1.10.2','rollout auto start  ','SQL','MYSQL/V1_10_2__rollout_auto_start__MYSQL.sql',1887828765,'hawkbit','2019-03-07 16:10:59',1,1),(16,16,'1.10.3','add rollout deleted flag  ','SQL','MYSQL/V1_10_3__add_rollout_deleted_flag__MYSQL.sql',1292572859,'hawkbit','2019-03-07 16:10:59',31,1),(17,17,'1.11.0','drop target info  ','SQL','MYSQL/V1_11_0__drop_target_info__MYSQL.sql',413839248,'hawkbit','2019-03-07 16:10:59',14,1),(18,18,'1.11.1','target filter query UQ   ','SQL','MYSQL/V1_11_1__target_filter_query_UQ___MYSQL.sql',-115576513,'hawkbit','2019-03-07 16:10:59',2,1),(19,19,'1.11.2','remove unused idexes   ','SQL','MYSQL/V1_11_2__remove_unused_idexes___MYSQL.sql',-507567816,'hawkbit','2019-03-07 16:10:59',6,1),(20,20,'1.11.2.1','create tenant usage  ','SQL','MYSQL/V1_11_2_1__create_tenant_usage__MYSQL.sql',-206019792,'hawkbit','2019-03-07 16:10:59',2,1),(21,21,'1.11.3','add module md targetvis  ','SQL','MYSQL/V1_11_3__add_module_md_targetvis__MYSQL.sql',185590925,'hawkbit','2019-03-07 16:10:59',2,1),(22,22,'1.12.0','action performance   ','SQL','MYSQL/V1_12_0__action_performance___MYSQL.sql',603109923,'hawkbit','2019-03-07 16:10:59',20,1),(23,23,'1.12.1','missing non null   ','SQL','MYSQL/V1_12_1__missing_non_null___MYSQL.sql',193177367,'hawkbit','2019-03-07 16:10:59',12,1),(24,24,'1.12.2','missing non null enum   ','SQL','MYSQL/V1_12_2__missing_non_null_enum___MYSQL.sql',1849006417,'hawkbit','2019-03-07 16:10:59',9,1),(25,25,'1.12.3','cascade delete   ','SQL','MYSQL/V1_12_3__cascade_delete___MYSQL.sql',2033261637,'hawkbit','2019-03-07 16:10:59',1,1),(26,26,'1.12.4','add maintenance window   ','SQL','MYSQL/V1_12_4__add_maintenance_window___MYSQL.sql',120260775,'hawkbit','2019-03-07 16:10:59',2,1),(27,27,'1.12.6','add index   ','SQL','MYSQL/V1_12_6__add_index___MYSQL.sql',-859477542,'hawkbit','2019-03-07 16:10:59',3,1),(28,28,'1.12.7','add rollout approval fields   ','SQL','MYSQL/V1_12_7__add_rollout_approval_fields___MYSQL.sql',-146076213,'hawkbit','2019-03-07 16:10:59',2,1),(29,29,'1.12.8','change length of created last modified by   ','SQL','MYSQL/V1_12_8__change_length_of_created_last_modified_by___MYSQL.sql',1152232785,'hawkbit','2019-03-07 16:10:59',7,1),(2,2,'1.2.0','update target info for message   ','SQL','MYSQL/V1_2_0__update_target_info_for_message___MYSQL.sql',1912199924,'hawkbit','2019-03-07 16:10:59',5,1),(3,3,'1.4.0','cascade delete   ','SQL','MYSQL/V1_4_0__cascade_delete___MYSQL.sql',695610035,'hawkbit','2019-03-07 16:10:59',37,1),(4,4,'1.4.1','cascade delete   ','SQL','MYSQL/V1_4_1__cascade_delete___MYSQL.sql',71258789,'hawkbit','2019-03-07 16:10:59',6,1),(5,5,'1.5.0','target filter query   ','SQL','MYSQL/V1_5_0__target_filter_query___MYSQL.sql',1822904321,'hawkbit','2019-03-07 16:10:59',3,1),(6,6,'1.6.0','rollout management   ','SQL','MYSQL/V1_6_0__rollout_management___MYSQL.sql',-1974636320,'hawkbit','2019-03-07 16:10:59',36,1),(7,7,'1.7.0','swmType maxAssignment greater 0  ','SQL','MYSQL/V1_7_0__swmType_maxAssignment_greater_0__MYSQL.sql',-251836914,'hawkbit','2019-03-07 16:10:59',1,1),(8,8,'1.7.1','reduce length enums   ','SQL','MYSQL/V1_7_1__reduce_length_enums___MYSQL.sql',-593689229,'hawkbit','2019-03-07 16:10:59',14,1),(9,9,'1.8.0','auto assign ds filter  ','SQL','MYSQL/V1_8_0__auto_assign_ds_filter__MYSQL.sql',342236577,'hawkbit','2019-03-07 16:10:59',5,1),(10,10,'1.8.1','cascade delete   ','SQL','MYSQL/V1_8_1__cascade_delete___MYSQL.sql',1697028621,'hawkbit','2019-03-07 16:10:59',15,1),(11,11,'1.8.2','remove external artifact   ','SQL','MYSQL/V1_8_2__remove_external_artifact___MYSQL.sql',415836704,'hawkbit','2019-03-07 16:10:59',3,1),(12,12,'1.9.0','add rollout groups created   ','SQL','MYSQL/V1_9_0__add_rollout_groups_created___MYSQL.sql',1685327539,'hawkbit','2019-03-07 16:10:59',2,1);
+INSERT INTO `schema_version` VALUES (1,'1.0.1','init   ','SQL','MYSQL/V1_0_1__init___MYSQL.sql',2116264868,'hawkbit','2021-07-19 16:01:24',1593,1),(2,'1.2.0','update target info for message   ','SQL','MYSQL/V1_2_0__update_target_info_for_message___MYSQL.sql',1880816186,'hawkbit','2021-07-19 16:01:25',50,1),(3,'1.4.0','cascade delete   ','SQL','MYSQL/V1_4_0__cascade_delete___MYSQL.sql',743697353,'hawkbit','2021-07-19 16:01:25',479,1),(4,'1.4.1','cascade delete   ','SQL','MYSQL/V1_4_1__cascade_delete___MYSQL.sql',1352873934,'hawkbit','2021-07-19 16:01:25',45,1),(5,'1.5.0','target filter query   ','SQL','MYSQL/V1_5_0__target_filter_query___MYSQL.sql',2030746385,'hawkbit','2021-07-19 16:01:25',17,1),(6,'1.6.0','rollout management   ','SQL','MYSQL/V1_6_0__rollout_management___MYSQL.sql',-497551745,'hawkbit','2021-07-19 16:01:26',398,1),(7,'1.7.0','swmType maxAssignment greater 0  ','SQL','MYSQL/V1_7_0__swmType_maxAssignment_greater_0__MYSQL.sql',-251836914,'hawkbit','2021-07-19 16:01:26',4,1),(8,'1.7.1','reduce length enums   ','SQL','MYSQL/V1_7_1__reduce_length_enums___MYSQL.sql',276933168,'hawkbit','2021-07-19 16:01:26',213,1),(9,'1.8.0','auto assign ds filter  ','SQL','MYSQL/V1_8_0__auto_assign_ds_filter__MYSQL.sql',688297978,'hawkbit','2021-07-19 16:01:26',43,1),(10,'1.8.1','cascade delete   ','SQL','MYSQL/V1_8_1__cascade_delete___MYSQL.sql',1576124560,'hawkbit','2021-07-19 16:01:26',161,1),(11,'1.8.2','remove external artifact   ','SQL','MYSQL/V1_8_2__remove_external_artifact___MYSQL.sql',857376948,'hawkbit','2021-07-19 16:01:26',19,1),(12,'1.9.0','add rollout groups created   ','SQL','MYSQL/V1_9_0__add_rollout_groups_created___MYSQL.sql',-549237691,'hawkbit','2021-07-19 16:01:26',3,1),(13,'1.10.0','advanced rolloutgroup  ','SQL','MYSQL/V1_10_0__advanced_rolloutgroup__MYSQL.sql',689878859,'hawkbit','2021-07-19 16:01:26',7,1),(14,'1.10.1','consolidate artifact sha1  ','SQL','MYSQL/V1_10_1__consolidate_artifact_sha1__MYSQL.sql',647264314,'hawkbit','2021-07-19 16:01:26',56,1),(15,'1.10.2','rollout auto start  ','SQL','MYSQL/V1_10_2__rollout_auto_start__MYSQL.sql',-480603158,'hawkbit','2021-07-19 16:01:26',2,1),(16,'1.10.3','add rollout deleted flag  ','SQL','MYSQL/V1_10_3__add_rollout_deleted_flag__MYSQL.sql',436847924,'hawkbit','2021-07-19 16:01:27',371,1),(17,'1.11.0','drop target info  ','SQL','MYSQL/V1_11_0__drop_target_info__MYSQL.sql',643753335,'hawkbit','2021-07-19 16:01:27',123,1),(18,'1.11.1','target filter query UQ   ','SQL','MYSQL/V1_11_1__target_filter_query_UQ___MYSQL.sql',-1889353429,'hawkbit','2021-07-19 16:01:27',14,1),(19,'1.11.2','remove unused idexes   ','SQL','MYSQL/V1_11_2__remove_unused_idexes___MYSQL.sql',1164559072,'hawkbit','2021-07-19 16:01:27',47,1),(20,'1.11.3','add module md targetvis  ','SQL','MYSQL/V1_11_3__add_module_md_targetvis__MYSQL.sql',185590925,'hawkbit','2021-07-19 16:01:27',2,1),(21,'1.12.0','action performance   ','SQL','MYSQL/V1_12_0__action_performance___MYSQL.sql',1063801017,'hawkbit','2021-07-19 16:01:27',228,1),(22,'1.12.1','missing non null   ','SQL','MYSQL/V1_12_1__missing_non_null___MYSQL.sql',329832998,'hawkbit','2021-07-19 16:01:27',101,1),(23,'1.12.2','missing non null enum   ','SQL','MYSQL/V1_12_2__missing_non_null_enum___MYSQL.sql',465042623,'hawkbit','2021-07-19 16:01:27',97,1),(24,'1.12.3','cascade delete   ','SQL','MYSQL/V1_12_3__cascade_delete___MYSQL.sql',2033261637,'hawkbit','2021-07-19 16:01:27',7,1),(25,'1.12.4','add maintenance window   ','SQL','MYSQL/V1_12_4__add_maintenance_window___MYSQL.sql',1427114432,'hawkbit','2021-07-19 16:01:27',15,1),(26,'1.12.6','add index   ','SQL','MYSQL/V1_12_6__add_index___MYSQL.sql',-1675890621,'hawkbit','2021-07-19 16:01:27',18,1),(27,'1.12.7','add rollout approval fields   ','SQL','MYSQL/V1_12_7__add_rollout_approval_fields___MYSQL.sql',373176898,'hawkbit','2021-07-19 16:01:27',5,1),(28,'1.12.8','change length of created last modified by   ','SQL','MYSQL/V1_12_8__change_length_of_created_last_modified_by___MYSQL.sql',-2112499612,'hawkbit','2021-07-19 16:01:27',35,1),(29,'1.12.9','add target metadata   ','SQL','MYSQL/V1_12_9__add_target_metadata___MYSQL.sql',-35747934,'hawkbit','2021-07-19 16:01:27',37,1),(30,'1.12.10','change length of target attributes key   ','SQL','MYSQL/V1_12_10__change_length_of_target_attributes_key___MYSQL.sql',-384506038,'hawkbit','2021-07-19 16:01:27',3,1),(31,'1.12.11','add auto assign action type   ','SQL','MYSQL/V1_12_11__add_auto_assign_action_type___MYSQL.sql',1730115597,'hawkbit','2021-07-19 16:01:27',3,1),(32,'1.12.12','change length of controller id and name   ','SQL','MYSQL/V1_12_12__change_length_of_controller_id_and_name___MYSQL.sql',-480159953,'hawkbit','2021-07-19 16:01:28',398,1),(33,'1.12.13','add action external id   ','SQL','MYSQL/V1_12_13__add_action_external_id___MYSQL.sql',-891476345,'hawkbit','2021-07-19 16:01:28',20,1),(34,'1.12.14','add sha256 hash   ','SQL','MYSQL/V1_12_14__add_sha256_hash___MYSQL.sql',-1175654403,'hawkbit','2021-07-19 16:01:28',4,1),(35,'1.12.15','add weight   ','SQL','MYSQL/V1_12_15__add_weight___MYSQL.sql',-1225134657,'hawkbit','2021-07-19 16:01:28',7,1),(36,'1.12.16','add action initiated by   ','SQL','MYSQL/V1_12_16__add_action_initiated_by___MYSQL.sql',-2016797590,'hawkbit','2021-07-19 16:01:28',7,1),(37,'1.12.17','add index target modified   ','SQL','MYSQL/V1_12_17__add_index_target_modified___MYSQL.sql',-1836474638,'hawkbit','2021-07-19 16:01:28',8,1);
 /*!40000 ALTER TABLE `schema_version` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -881,31 +878,6 @@ INSERT INTO `sp_tenant_configuration` VALUES (1,1551975294139,'test',15519752941
 /*!40000 ALTER TABLE `sp_tenant_configuration` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `uf_tenant_usage`
---
-
-DROP TABLE IF EXISTS `uf_tenant_usage`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `uf_tenant_usage` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `cleared_at` bigint(20) DEFAULT NULL,
-  `tenant` varchar(40) NOT NULL,
-  `target_downloaded_bytes` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `cf_idx_tenant_usage` (`tenant`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `uf_tenant_usage`
---
-
-LOCK TABLES `uf_tenant_usage` WRITE;
-/*!40000 ALTER TABLE `uf_tenant_usage` DISABLE KEYS */;
-/*!40000 ALTER TABLE `uf_tenant_usage` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

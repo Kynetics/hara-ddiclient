@@ -1,7 +1,7 @@
 # LAUNCH UPDATE-SERVER
 
 ```$shell
-$docker-compuse up
+$docker-compose up
 ```
 
 # DATA

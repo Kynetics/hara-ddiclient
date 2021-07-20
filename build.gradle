@@ -279,7 +279,7 @@ task waitingHawkbitServer(){
     dependsOn 'restartHawkbitServer'
 
     doFirst {
-        def url = 'http://localhost:8081/health'
+        def url = 'http://localhost:8081/UI/login'
         println "Waiting for ${url} ..."
         while (!doHead(url)) {
             sleep(5000)
