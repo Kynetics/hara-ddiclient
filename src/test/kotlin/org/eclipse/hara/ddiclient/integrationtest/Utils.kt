@@ -114,7 +114,7 @@ object TestUtils {
 
     val tenantName = "DEFAULT"
     val tenantNameToLower = tenantName.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-    val basic = Credentials.basic("$tenantName\\test", "test")
+    val basic = Credentials.basic("test", "test")
     val hawkbitUrl = "http://localhost:8081"
     val downloadRootDirPath = "./build/test/download/"
     val gatewayToken = "66076ab945a127dd80b15e9011995109"
