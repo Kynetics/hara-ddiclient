@@ -10,9 +10,50 @@ connecting to [hawkBit](https://eclipse.org/hawkbit/) servers. It can be used fr
 any JVM compatible language (Java, Kotlin, etc).
 Hara-ddiclient is part of the [Eclipse Hara™ project](https://projects.eclipse.org/projects/iot.hawkbit.hara)
 
+## Project structure
+
+The hara-ddiclient project provides several software modules:
+1. `ddiapi-client`: implementation of a REST client for hawkBit DDI API
+1. `core`: implementation of communication logic using actors (uses `ddiapi-client`)
+1. `virtual-device`: a simple application using the hara-ddiclient library (uses `core`). Its purpose is to provide a configurable "virtual device" and a reference example on how to use the library. Some features, like the [Updater](core/core-api/src/main/kotlin/org/eclipse/hara/ddiclient/core/api/Updater.kt), are not implemented in the virtual device and are just mocked.
+
 ## Install
 
 To import this project use [jitpack](https://jitpack.io/) plugin.
+
+## Build from source
+
+To build this project from source:
+
+```shell
+./gradlew assemble
+```
+
+to build this project and run the tests (`docker-compose` required):
+
+```shell
+./gradlew build
+```
+
+to build the `hara-virtual-device` docker image:
+
+```shell
+./gradlew buildImage
+```
+
+to connect the virtual devices to the [hawkBit sandbox](https://hawkbit.eclipseprojects.io/):
+
+```shell
+docker run -e HAWKBIT_GATEWAY_TOKEN=<gatewaytokenvalue> -e HAWKBIT_CONTROLLER_ID=<mycontrollerid> hara-virtual-device:<virtual-device-version>
+```
+
+for example:
+
+```shell
+docker run -e HAWKBIT_GATEWAY_TOKEN=50f600c6e7e517b98b008311b0a325eb -e HAWKBIT_CONTROLLER_ID=mydevice hara-virtual-device:1.0.0
+```
+
+Make sure the authentication method provided in the parameters is enabled in the ["System Config"](https://www.eclipse.org/hawkbit/concepts/authentication/#ddi-api-authentication-modes) page. Available virtual device parameters can be found in the [Configuration class](virtual-device/src/main/kotlin/org/eclipse/hara/ddiclient/virtualdevice/Configuration.kt).
 
 ## Example
 
