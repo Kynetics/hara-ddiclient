@@ -240,18 +240,7 @@ task buildImage(){
     doLast{
         exec {
             workingDir dockerClientDir
-            commandLine "docker", "build", ".", "--tag", "comkynetics/uf-virtual-device:$app_version"
-        }
-    }
-}
-
-task pushImage(){
-    group "Docker"
-    dependsOn buildImage
-    doLast{
-        exec {
-            workingDir dockerClientDir
-            commandLine "docker", "push", "comkynetics/uf-virtual-device:$app_version"
+            commandLine "docker", "build", ".", "--tag", "hara-virtual-device:$app_version"
         }
     }
 }
