@@ -35,7 +35,7 @@ services:
     - hara-network
 
     volumes:
-    - ./artifactrepo:/opt/hawkbit/artifactrepo
+    - ./artifactrepo:/opt/hawkbit/artifactrepo:Z
     depends_on:
       maria-db:
         condition: service_healthy
