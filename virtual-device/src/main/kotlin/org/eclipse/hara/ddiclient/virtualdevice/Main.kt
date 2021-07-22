@@ -19,7 +19,6 @@ import org.eclipse.hara.ddiclient.virtualdevice.entrypoint.MessageListenerImpl
 import org.eclipse.hara.ddiclient.virtualdevice.entrypoint.UpdaterImpl
 import kotlin.random.Random.Default.nextLong
 
-// TODO add exception handling ! --> A
 @OptIn(DelicateCoroutinesApi::class)
 fun main() = runBlocking {
     Configuration.apply {
