@@ -11,7 +11,6 @@
 package org.eclipse.hara.ddiclient.core
 
 import java.io.File
-import java.lang.StringBuilder
 import java.security.DigestInputStream
 import java.security.MessageDigest
 
@@ -22,7 +21,8 @@ fun File.md5(): String {
     inputStream().use { fis ->
         val digestInputStream = DigestInputStream(fis, md)
         val buffer = ByteArray(4096)
-        while (digestInputStream.read(buffer) > -1) {}
+        while (digestInputStream.read(buffer) > -1) {
+        }
         digestInputStream.close()
         digestInputStream.messageDigest
             .digest()

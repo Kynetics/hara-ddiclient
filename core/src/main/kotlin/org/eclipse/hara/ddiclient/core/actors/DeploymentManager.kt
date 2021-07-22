@@ -10,6 +10,10 @@
 
 package org.eclipse.hara.ddiclient.core.actors
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.launch
 import org.eclipse.hara.ddiapiclient.api.model.CancelFeedbackRequest
 import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse
 import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse.Deployment.ProvisioningType
@@ -19,17 +23,14 @@ import org.eclipse.hara.ddiclient.core.actors.ActionManager.Companion.Message.Up
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.Out.DeploymentCancelInfo
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.Out.DeploymentInfo
 import org.eclipse.hara.ddiclient.core.api.MessageListener
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.launch
 
 @OptIn(ObsoleteCoroutinesApi::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class DeploymentManager
 private constructor(scope: ActorScope) : AbstractActor(scope) {
 
     private val registry = coroutineContext[HaraClientContext]!!.registry
-    private val authRequest: org.eclipse.hara.ddiclient.core.api.DeploymentPermitProvider = coroutineContext[HaraClientContext]!!.deploymentPermitProvider
+    private val authRequest: org.eclipse.hara.ddiclient.core.api.DeploymentPermitProvider =
+        coroutineContext[HaraClientContext]!!.deploymentPermitProvider
     private val connectionManager = coroutineContext[CMActor]!!.ref
     private val notificationManager = coroutineContext[NMActor]!!.ref
     private var waitingAuthJob: Job? = null
@@ -55,7 +56,7 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
 
         when {
 
-            msg is DeploymentInfo && msg.downloadIs(ProvisioningType.forced)  -> {
+            msg is DeploymentInfo && msg.downloadIs(ProvisioningType.forced) -> {
                 become(downloadingReceive(state.copy(deplBaseResp = msg.info)))
                 child("downloadManager")!!.send(msg)
             }
@@ -80,7 +81,8 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
     private fun waitingDownloadAuthorization(state: State): Receive = { msg ->
         when {
 
-            msg is DeploymentInfo && msg.downloadIs(ProvisioningType.attempt) && !msg.forceAuthRequest -> {}
+            msg is DeploymentInfo && msg.downloadIs(ProvisioningType.attempt) && !msg.forceAuthRequest -> {
+            }
 
             msg is DeploymentInfo -> {
                 become(beginningReceive(state))
@@ -191,11 +193,16 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
 
             is DeploymentCancelInfo -> {
                 LOG.info("can't stop update")
-                connectionManager.send(ConnectionManager.Companion.Message.In.CancelFeedback(
-                        CancelFeedbackRequest.newInstance(msg.info.cancelAction.stopId,
-                                CancelFeedbackRequest.Status.Execution.rejected,
-                                CancelFeedbackRequest.Status.Result.Finished.success,
-                                "Update already started. Can't be stopped.")))
+                connectionManager.send(
+                    ConnectionManager.Companion.Message.In.CancelFeedback(
+                        CancelFeedbackRequest.newInstance(
+                            msg.info.cancelAction.stopId,
+                            CancelFeedbackRequest.Status.Execution.rejected,
+                            CancelFeedbackRequest.Status.Result.Finished.success,
+                            "Update already started. Can't be stopped."
+                        )
+                    )
+                )
             }
 
             is CancelForced -> {
@@ -205,10 +212,15 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
     }
 
     private suspend fun stopUpdateAndNotify(msg: DeploymentCancelInfo) {
-        connectionManager.send(ConnectionManager.Companion.Message.In.CancelFeedback(
-                CancelFeedbackRequest.newInstance(msg.info.cancelAction.stopId,
-                        CancelFeedbackRequest.Status.Execution.closed,
-                        CancelFeedbackRequest.Status.Result.Finished.success)))
+        connectionManager.send(
+            ConnectionManager.Companion.Message.In.CancelFeedback(
+                CancelFeedbackRequest.newInstance(
+                    msg.info.cancelAction.stopId,
+                    CancelFeedbackRequest.Status.Execution.closed,
+                    CancelFeedbackRequest.Status.Result.Finished.success
+                )
+            )
+        )
         stopUpdate()
     }
 
@@ -234,14 +246,15 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
 
     private suspend fun sendFeedback(id: String, vararg messages: String) {
         connectionManager.send(
-                ConnectionManager.Companion.Message.In.DeploymentFeedback(
-                        DeploymentFeedbackRequest.newInstance(id,
-                                DeploymentFeedbackRequest.Status.Execution.proceeding,
-                                DeploymentFeedbackRequest.Status.Result.Progress(0, 0),
-                                DeploymentFeedbackRequest.Status.Result.Finished.none,
-                                *messages
-                        )
+            ConnectionManager.Companion.Message.In.DeploymentFeedback(
+                DeploymentFeedbackRequest.newInstance(
+                    id,
+                    DeploymentFeedbackRequest.Status.Execution.proceeding,
+                    DeploymentFeedbackRequest.Status.Result.Progress(0, 0),
+                    DeploymentFeedbackRequest.Status.Result.Finished.none,
+                    *messages
                 )
+            )
         )
     }
 

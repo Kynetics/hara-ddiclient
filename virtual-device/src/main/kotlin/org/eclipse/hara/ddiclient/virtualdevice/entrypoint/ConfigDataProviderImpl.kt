@@ -16,16 +16,22 @@ import org.eclipse.hara.ddiclient.virtualdevice.Configuration
 import java.text.MessageFormat
 
 class ConfigDataProviderImpl(
-    private val virtualDeviceId:Int,
-    private val clientData: HaraClientData): ConfigDataProvider {
+    private val virtualDeviceId: Int,
+    private val clientData: HaraClientData
+) : ConfigDataProvider {
     override fun configData(): Map<String, String> {
         return Configuration.targetAttributes
             .split("|")
-            .map { it.split(",").let { list -> list[0] to MessageFormat.format(list[1],
-                virtualDeviceId,
-                clientData.tenant,
-                clientData.controllerId,
-                clientData.gatewayToken) }
+            .map {
+                it.split(",").let { list ->
+                    list[0] to MessageFormat.format(
+                        list[1],
+                        virtualDeviceId,
+                        clientData.tenant,
+                        clientData.controllerId,
+                        clientData.gatewayToken
+                    )
+                }
             }
             .toMap()
     }

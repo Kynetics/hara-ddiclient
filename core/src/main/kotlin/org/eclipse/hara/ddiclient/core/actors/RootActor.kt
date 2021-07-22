@@ -10,10 +10,10 @@
 
 package org.eclipse.hara.ddiclient.core.actors
 
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.In
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 
 @OptIn(ObsoleteCoroutinesApi::class)
 class RootActor
@@ -47,10 +47,12 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
 
 data class CMActor(val ref: ActorRef) : AbstractCoroutineContextElement(CMActor) {
     companion object Key : CoroutineContext.Key<CMActor>
+
     override fun toString(): String = "CMActor($ref)"
 }
 
 data class NMActor(val ref: ActorRef) : AbstractCoroutineContextElement(NMActor) {
     companion object Key : CoroutineContext.Key<NMActor>
+
     override fun toString(): String = "NMActor($ref)"
 }

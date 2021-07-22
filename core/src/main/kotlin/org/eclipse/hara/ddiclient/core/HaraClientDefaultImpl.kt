@@ -10,14 +10,10 @@
 
 package org.eclipse.hara.ddiclient.core
 
-import org.eclipse.hara.ddiapiclient.api.DdiClientDefaultImpl
-import org.eclipse.hara.ddiclient.core.actors.AbstractActor
-import org.eclipse.hara.ddiclient.core.actors.ActorRef
-import org.eclipse.hara.ddiclient.core.actors.ConnectionManager
-import org.eclipse.hara.ddiclient.core.actors.RootActor
-import org.eclipse.hara.ddiclient.core.actors.HaraClientContext
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
+import org.eclipse.hara.ddiapiclient.api.DdiClientDefaultImpl
+import org.eclipse.hara.ddiclient.core.actors.*
 import org.eclipse.hara.ddiclient.core.api.*
 
 class HaraClientDefaultImpl : HaraClient {
@@ -25,22 +21,24 @@ class HaraClientDefaultImpl : HaraClient {
     var rootActor: ActorRef? = null
 
     override fun init(
-            haraClientData: HaraClientData,
-            directoryForArtifactsProvider: DirectoryForArtifactsProvider,
-            configDataProvider: ConfigDataProvider,
-            deploymentPermitProvider: DeploymentPermitProvider,
-            messageListeners: List<MessageListener>,
-            updaters: List<Updater>,
-            httpBuilder: OkHttpClient.Builder
-            ) {
-        rootActor = AbstractActor.actorOf("rootActor", HaraClientContext(
+        haraClientData: HaraClientData,
+        directoryForArtifactsProvider: DirectoryForArtifactsProvider,
+        configDataProvider: ConfigDataProvider,
+        deploymentPermitProvider: DeploymentPermitProvider,
+        messageListeners: List<MessageListener>,
+        updaters: List<Updater>,
+        httpBuilder: OkHttpClient.Builder
+    ) {
+        rootActor = AbstractActor.actorOf(
+            "rootActor", HaraClientContext(
                 DdiClientDefaultImpl.of(haraClientData, httpBuilder),
                 UpdaterRegistry(*updaters.toTypedArray()),
                 configDataProvider,
                 PathResolver(directoryForArtifactsProvider),
                 deploymentPermitProvider,
                 messageListeners
-        )) { RootActor.of(it) }
+            )
+        ) { RootActor.of(it) }
     }
 
     override fun startAsync() = runBlocking { rootActor!!.send(ConnectionManager.Companion.Message.In.Start) }

@@ -28,9 +28,11 @@ class SuccessfulForcedUpdate : AbstractClientTest() {
 
     @DataProvider(name = "targetUpdateProvider")
     fun dataProvider(): Array<TestUtils.TargetDeployments> {
-        return arrayOf(target1AcceptFirstCancelRequestThenApplyAppUpdate(),
-                target2ApplyOsUpdate(),
-                target3ApplyOsWithAppsUpdate())
+        return arrayOf(
+            target1AcceptFirstCancelRequestThenApplyAppUpdate(),
+            target2ApplyOsUpdate(),
+            target3ApplyOsWithAppsUpdate()
+        )
     }
 
     @Test(enabled = true, dataProvider = "targetUpdateProvider")
@@ -79,25 +81,26 @@ class SuccessfulForcedUpdate : AbstractClientTest() {
             )
         )
 
-        val filesDownloadedPairedToServerFile = setOf(pathResolver.fromArtifact("2").invoke(test1Artifact) to locationOfFileNamed("test1"))
+        val filesDownloadedPairedToServerFile =
+            setOf(pathResolver.fromArtifact("2").invoke(test1Artifact) to locationOfFileNamed("test1"))
 
         return TestUtils.TargetDeployments(
-                targetId = targetId,
-                targetToken = "4a28d893bb841def706073c789c0f3a7",
-                deploymentInfo = listOf(
-                        TestUtils.TargetDeployments.DeploymentInfo(
-                                actionId = 1,
-                                actionStatusOnStart = actionStatusOnStart1,
-                                actionStatusOnFinish = contentEntriesOnFinish1,
-                                filesDownloadedPairedWithServerFile = emptySet()
-                        ),
-                        TestUtils.TargetDeployments.DeploymentInfo(
-                                actionId = 2,
-                                actionStatusOnStart = defaultActionStatusOnStart,
-                                actionStatusOnFinish = contentEntriesOnFinish2,
-                                filesDownloadedPairedWithServerFile = filesDownloadedPairedToServerFile
-                        )
+            targetId = targetId,
+            targetToken = "4a28d893bb841def706073c789c0f3a7",
+            deploymentInfo = listOf(
+                TestUtils.TargetDeployments.DeploymentInfo(
+                    actionId = 1,
+                    actionStatusOnStart = actionStatusOnStart1,
+                    actionStatusOnFinish = contentEntriesOnFinish1,
+                    filesDownloadedPairedWithServerFile = emptySet()
+                ),
+                TestUtils.TargetDeployments.DeploymentInfo(
+                    actionId = 2,
+                    actionStatusOnStart = defaultActionStatusOnStart,
+                    actionStatusOnFinish = contentEntriesOnFinish2,
+                    filesDownloadedPairedWithServerFile = filesDownloadedPairedToServerFile
                 )
+            )
         )
     }
 
@@ -112,20 +115,21 @@ class SuccessfulForcedUpdate : AbstractClientTest() {
             )
         )
 
-        val filesDownloadedPairedToServerFile = setOf(pathResolver.fromArtifact("3").invoke(test4Artifact) to locationOfFileNamed("test4"))
+        val filesDownloadedPairedToServerFile =
+            setOf(pathResolver.fromArtifact("3").invoke(test4Artifact) to locationOfFileNamed("test4"))
 
         return TestUtils.TargetDeployments(
-                targetId = targetId,
-                targetToken = "0fe7b8c9de2102ec6bf305b6f66df5b2",
-                deploymentInfo = listOf(
-                        TestUtils.TargetDeployments.DeploymentInfo(
-                                actionId = 3,
-                                actionStatusOnStart = defaultActionStatusOnStart,
-                                actionStatusOnFinish = contentEntriesOnFinish,
-                                filesDownloadedPairedWithServerFile = filesDownloadedPairedToServerFile
+            targetId = targetId,
+            targetToken = "0fe7b8c9de2102ec6bf305b6f66df5b2",
+            deploymentInfo = listOf(
+                TestUtils.TargetDeployments.DeploymentInfo(
+                    actionId = 3,
+                    actionStatusOnStart = defaultActionStatusOnStart,
+                    actionStatusOnFinish = contentEntriesOnFinish,
+                    filesDownloadedPairedWithServerFile = filesDownloadedPairedToServerFile
 
-                        )
                 )
+            )
         )
     }
 
@@ -140,17 +144,17 @@ class SuccessfulForcedUpdate : AbstractClientTest() {
             )
         )
         return TestUtils.TargetDeployments(
-                targetId = targetId,
-                targetToken = "4a28d893bb841def706073c789c0f3a7",
-                deploymentInfo = listOf(
-                        TestUtils.TargetDeployments.DeploymentInfo(
-                                actionId = actionId,
-                                actionStatusOnStart = defaultActionStatusOnStart,
-                                actionStatusOnFinish = contentEntriesOnFinish,
-                                filesDownloadedPairedWithServerFile = filesDownloadedInOsWithAppsPairedToServerFile(actionId)
+            targetId = targetId,
+            targetToken = "4a28d893bb841def706073c789c0f3a7",
+            deploymentInfo = listOf(
+                TestUtils.TargetDeployments.DeploymentInfo(
+                    actionId = actionId,
+                    actionStatusOnStart = defaultActionStatusOnStart,
+                    actionStatusOnFinish = contentEntriesOnFinish,
+                    filesDownloadedPairedWithServerFile = filesDownloadedInOsWithAppsPairedToServerFile(actionId)
 
-                        )
                 )
+            )
         )
     }
 }

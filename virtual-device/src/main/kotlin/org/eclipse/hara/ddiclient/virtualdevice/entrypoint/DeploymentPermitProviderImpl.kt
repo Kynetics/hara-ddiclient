@@ -10,12 +10,12 @@
 
 package org.eclipse.hara.ddiclient.virtualdevice.entrypoint
 
-import org.eclipse.hara.ddiclient.core.api.DeploymentPermitProvider
-import org.eclipse.hara.ddiclient.virtualdevice.Configuration
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import org.eclipse.hara.ddiclient.core.api.DeploymentPermitProvider
+import org.eclipse.hara.ddiclient.virtualdevice.Configuration
 
-class DeploymentPermitProviderImpl: DeploymentPermitProvider {
+class DeploymentPermitProviderImpl : DeploymentPermitProvider {
     override fun downloadAllowed(): Deferred<Boolean> {
         return CompletableDeferred(Configuration.grantDownload)
     }

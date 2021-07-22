@@ -12,11 +12,7 @@ package org.eclipse.hara.ddiclient.virtualdevice
 import kotlinx.coroutines.*
 import org.eclipse.hara.ddiclient.core.HaraClientDefaultImpl
 import org.eclipse.hara.ddiclient.core.api.HaraClientData
-import org.eclipse.hara.ddiclient.virtualdevice.entrypoint.ConfigDataProviderImpl
-import org.eclipse.hara.ddiclient.virtualdevice.entrypoint.DeploymentPermitProviderImpl
-import org.eclipse.hara.ddiclient.virtualdevice.entrypoint.DirectoryForArtifactsProviderImpl
-import org.eclipse.hara.ddiclient.virtualdevice.entrypoint.MessageListenerImpl
-import org.eclipse.hara.ddiclient.virtualdevice.entrypoint.UpdaterImpl
+import org.eclipse.hara.ddiclient.virtualdevice.entrypoint.*
 import kotlin.random.Random.Default.nextLong
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -41,7 +37,8 @@ fun main() = runBlocking {
         }
     }
 
-    while (true) {}
+    while (true) {
+    }
 }
 
 private fun getClient(clientData: HaraClientData, virtualDeviceId: Int): HaraClientDefaultImpl {

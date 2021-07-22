@@ -10,6 +10,7 @@
 
 package org.eclipse.hara.ddiclient.core.actors
 
+import kotlinx.coroutines.*
 import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse
 import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse.Deployment.ProvisioningType.attempt
 import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse.Deployment.ProvisioningType.forced
@@ -29,12 +30,6 @@ import org.eclipse.hara.ddiclient.core.actors.DownloadManager.Companion.State.Do
 import org.eclipse.hara.ddiclient.core.actors.DownloadManager.Companion.State.Download.State.Status
 import org.eclipse.hara.ddiclient.core.actors.FileDownloader.Companion.FileToDownload
 import org.eclipse.hara.ddiclient.core.api.MessageListener
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
 @OptIn(ObsoleteCoroutinesApi::class, ExperimentalCoroutinesApi::class)
 class DownloadManager
@@ -56,17 +51,24 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
                 if (md5s.isNotEmpty()) {
 
                     notificationManager.send(
-                            MessageListener.Message.State.Downloading(
-                                    msg.info.deployment.chunks.flatMap { it.artifacts }.filter { md5s.contains(it.hashes.md5) }.map { at ->
-                                        MessageListener.Message.State.Downloading.Artifact(at.filename, at.size, at.hashes.md5)
-                                    }.toList()
-                            )
+                        MessageListener.Message.State.Downloading(
+                            msg.info.deployment.chunks.flatMap { it.artifacts }.filter { md5s.contains(it.hashes.md5) }
+                                .map { at ->
+                                    MessageListener.Message.State.Downloading.Artifact(
+                                        at.filename,
+                                        at.size,
+                                        at.hashes.md5
+                                    )
+                                }.toList()
+                        )
                     )
 
                     val dms = createDownloadsManagers(msg.info, md5s)
                     become(downloadingReceive(State(msg.info, dms)))
-                    feedback(msg.info.id, proceeding, Progress(dms.size, 0), none,
-                            "Start downloading ${dms.size} files")
+                    feedback(
+                        msg.info.id, proceeding, Progress(dms.size, 0), none,
+                        "Start downloading ${dms.size} files"
+                    )
                     dms.values.forEach {
                         it.downloader.send(FileDownloader.Companion.Message.Start)
                     }
@@ -90,23 +92,31 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
             is FileDownloader.Companion.Message.Info -> LOG.info(msg.toString())
 
             is FileDownloader.Companion.Message.Error -> {
-                processMessage(state, msg.md5,
-                    Status.ERROR, "failed to download file with md5 ${msg.md5} due to ${msg.message}", msg.message)
+                processMessage(
+                    state, msg.md5,
+                    Status.ERROR, "failed to download file with md5 ${msg.md5} due to ${msg.message}", msg.message
+                )
             }
 
             else -> unhandled(msg)
         }
     }
 
-    private suspend fun processMessage(state: State, md5: String, status: Status, message: String, errorMsg: List<String>? = null) {
+    private suspend fun processMessage(
+        state: State,
+        md5: String,
+        status: Status,
+        message: String,
+        errorMsg: List<String>? = null
+    ) {
         val download = state.downloads.getValue(md5)
         val newErrMessages = if (errorMsg == null) download.state.messages else download.state.messages + errorMsg
         val newDownload = download.copy(state = download.state.copy(status = status, messages = newErrMessages))
         val newState = state.copy(downloads = state.downloads + (md5 to newDownload))
         val downloads = newState.downloads.values
         val progress = Progress(
-                downloads.size,
-                downloads.count { it.state.status == Status.SUCCESS })
+            downloads.size,
+            downloads.count { it.state.status == Status.SUCCESS })
         when {
             downloads.any { it.state.status == Status.RUNNING } -> {
                 feedback(state.deplBaseResp.id, proceeding, progress, none, message)
@@ -114,8 +124,12 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
             }
             downloads.any { it.state.status == Status.ERROR } -> {
                 feedback(state.deplBaseResp.id, closed, progress, failure, message)
-                notificationManager.send(MessageListener.Message.Event.UpdateFinished(successApply = false,
-                        details = listOf(message)))
+                notificationManager.send(
+                    MessageListener.Message.Event.UpdateFinished(
+                        successApply = false,
+                        details = listOf(message)
+                    )
+                )
                 parent!!.send(DownloadFailed(listOf(message)))
             }
             else -> {
@@ -129,7 +143,13 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         }
     }
 
-    private suspend fun feedback(id: String, execution: Execution, progress: Progress, finished: Finished, vararg messages: String) {
+    private suspend fun feedback(
+        id: String,
+        execution: Execution,
+        progress: Progress,
+        finished: Finished,
+        vararg messages: String
+    ) {
         val deplFdbkReq = DeploymentFeedbackRequest.newInstance(id, execution, progress, finished, *messages)
         connectionManager.send(DeploymentFeedback(deplFdbkReq))
     }
@@ -146,7 +166,7 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         }
         return dbr.deployment.chunks.flatMap { it.artifacts }.filter { md5s.contains(it.hashes.md5) }.map { at ->
             val md5 = at.hashes.md5
-            val ftd = FileToDownload(at.filename, md5, at._links.download_http?.href ?: "" , wd, at.size)
+            val ftd = FileToDownload(at.filename, md5, at._links.download_http?.href ?: "", wd, at.size)
             val dm = actorOf(childName(md5)) {
                 FileDownloader.of(it, 3, ftd, dbr.id)
             }
@@ -160,17 +180,18 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         LOG.info("Removing artifacts of old updates (current action is $currentActionId)")
         withContext(Dispatchers.IO) {
             pathResolver.baseDirectory()
-                    .listFiles()
-                    ?.filter { it != pathResolver.updateDir(currentActionId) }
-                    ?.forEach {
-                        LOG.info("Removing artifacts of update with action id ${it.name}")
-                        it.deleteRecursively() }
+                .listFiles()
+                ?.filter { it != pathResolver.updateDir(currentActionId) }
+                ?.forEach {
+                    LOG.info("Removing artifacts of update with action id ${it.name}")
+                    it.deleteRecursively()
+                }
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun beforeCloseChannel() {
-        forEachActorNode { actorRef -> if(!actorRef.isClosedForSend) launch { actorRef.send(FileDownloader.Companion.Message.Stop) } }
+        forEachActorNode { actorRef -> if (!actorRef.isClosedForSend) launch { actorRef.send(FileDownloader.Companion.Message.Stop) } }
 
     }
 
@@ -182,8 +203,8 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         fun of(scope: ActorScope) = DownloadManager(scope)
 
         data class State(
-                val deplBaseResp: DeploymentBaseResponse,
-                val downloads: Map<String, Download> = emptyMap()
+            val deplBaseResp: DeploymentBaseResponse,
+            val downloads: Map<String, Download> = emptyMap()
         ) {
             data class Download(val downloader: ActorRef, val state: State = State()) {
                 data class State(val status: Status = Status.RUNNING, val messages: List<String> = emptyList()) {

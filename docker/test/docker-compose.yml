@@ -6,36 +6,36 @@ services:
     image: hawkbit/hawkbit-update-server:0.3.0M7-mysql
 
     environment:
-    - JAVA_STD_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n
-    - JAVA_NOSTD_OPTIONS=-Xmx768m -Xss300K
-    - JAVA_ADV_RUNTIME_OPTIONS=-XX:+UseCompressedOops
-    - JAVA_ADV_SERVICEABILITY_OPTIONS=-XX:+HeapDumpOnOutOfMemoryError
-    - JAVA_ADV_GC_OPTIONS=-XX:MaxMetaspaceSize=250m -XX:MetaspaceSize=250m -XX:+UseG1GC -XX:+UseStringDeduplication
-    - JAVA_ARGS=--spring.profiles.active=mockIam,withMariaDB
+      - JAVA_STD_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n
+      - JAVA_NOSTD_OPTIONS=-Xmx768m -Xss300K
+      - JAVA_ADV_RUNTIME_OPTIONS=-XX:+UseCompressedOops
+      - JAVA_ADV_SERVICEABILITY_OPTIONS=-XX:+HeapDumpOnOutOfMemoryError
+      - JAVA_ADV_GC_OPTIONS=-XX:MaxMetaspaceSize=250m -XX:MetaspaceSize=250m -XX:+UseG1GC -XX:+UseStringDeduplication
+      - JAVA_ARGS=--spring.profiles.active=mockIam,withMariaDB
 
     command: [
-      "--spring.datasource.url=jdbc:mysql://maria-db:3306/hawkbit?useMysqlMetadata=true",
-      "--spring.datasource.username=hawkbit",
-      "--spring.datasource.password=1234",
-      "--spring.security.user.name=test",
-      "--spring.security.user.password={noop}test",
-      "--hawkbit.server.ui.demo.disclaimer=Test configuration",
-      "--spring.http.multipart.max-file-size=3072MB",
-      "--hawkbit.server.security.dos.maxArtifactSize=3073741824",
-      "--hawkbit.server.security.dos.maxArtifactStorage=3073741824",
-      "--hawkbit.artifact.url.protocols.download-http.protocol=http",
-      "--hawkbit.artifact.url.protocols.download-http.port=8080",
-      "--hawkbit.dmf.rabbitmq.enabled=false",
-      "--management.health.rabbit.enabled=false"]
+        "--spring.datasource.url=jdbc:mysql://maria-db:3306/hawkbit?useMysqlMetadata=true",
+        "--spring.datasource.username=hawkbit",
+        "--spring.datasource.password=1234",
+        "--spring.security.user.name=test",
+        "--spring.security.user.password={noop}test",
+        "--hawkbit.server.ui.demo.disclaimer=Test configuration",
+        "--spring.http.multipart.max-file-size=3072MB",
+        "--hawkbit.server.security.dos.maxArtifactSize=3073741824",
+        "--hawkbit.server.security.dos.maxArtifactStorage=3073741824",
+        "--hawkbit.artifact.url.protocols.download-http.protocol=http",
+        "--hawkbit.artifact.url.protocols.download-http.port=8080",
+        "--hawkbit.dmf.rabbitmq.enabled=false",
+        "--management.health.rabbit.enabled=false" ]
 
     ports:
-    - 8081:8080
+      - 8081:8080
 
     networks:
-    - hara-network
+      - hara-network
 
     volumes:
-    - ./artifactrepo:/opt/hawkbit/artifactrepo:Z
+      - ./artifactrepo:/opt/hawkbit/artifactrepo:Z
     depends_on:
       maria-db:
         condition: service_healthy

@@ -10,8 +10,8 @@
 
 package org.eclipse.hara.ddiclient.core.actors
 
-import org.eclipse.hara.ddiclient.core.api.MessageListener
 import kotlinx.coroutines.ObsoleteCoroutinesApi
+import org.eclipse.hara.ddiclient.core.api.MessageListener
 
 @OptIn(ObsoleteCoroutinesApi::class)
 class NotificationManager

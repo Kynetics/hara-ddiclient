@@ -128,7 +128,7 @@ project(':core:core-api') {
     }
 }
 
-project(':virtual-device'){
+project(':virtual-device') {
     group 'org.eclipse.hara.hara-virtual-device'
     version app_version
     apply plugin: 'application'
@@ -160,14 +160,14 @@ boolean doHead(url) {
     }
 }
 
-task copyClientSideGitHooks(type:Copy, group: "git-hooks"){
+task copyClientSideGitHooks(type: Copy, group: "git-hooks") {
     description 'Copies the git hooks from git-hooks to the .git folder.'
-    doFirst{
+    doFirst {
         project.fileTree("git-hooks").visit { FileVisitDetails details ->
-            if(details.name.endsWith(".sh")){
+            if (details.name.endsWith(".sh")) {
                 def name = details.name.substring(0, details.name.lastIndexOf(".sh"))
                 def file = file("${projectDir}/.git/hooks/${name}")
-                if(file.exists()){
+                if (file.exists()) {
                     ant.fail("${file.path} file already exists")
                 }
             }
@@ -234,10 +234,10 @@ task makeDockerContex(type: Copy) {
 
 }
 
-task buildImage(){
+task buildImage() {
     group "Docker"
     dependsOn makeDockerContex
-    doLast{
+    doLast {
         exec {
             workingDir dockerClientDir
             commandLine "docker", "build", ".", "--tag", "hara-virtual-device:$app_version"
@@ -254,7 +254,7 @@ task restartHawkbitServer() {
         }
 
         ext.process = new ProcessBuilder()
-                .directory(new File(projectDir,"docker${File.separator}test${File.separator}"))
+                .directory(new File(projectDir, "docker${File.separator}test${File.separator}"))
                 .command("docker-compose", "up")
                 .start()
 
@@ -262,7 +262,7 @@ task restartHawkbitServer() {
 
 }
 
-task waitingHawkbitServer(){
+task waitingHawkbitServer() {
     group 'testing'
 
     dependsOn 'restartHawkbitServer'
@@ -282,7 +282,7 @@ task waitingHawkbitServer(){
 test.dependsOn waitingHawkbitServer
 test.dependsOn cleanTest
 
-dependencies{
+dependencies {
     testImplementation tdeps.testng
     testImplementation deps.kotlin_stdlib
     testImplementation deps.kotlin_x
