@@ -56,9 +56,5 @@ class DdiRestConstants private constructor() {
         const val NO_ACTION_HISTORY = 0
 
         const val DEFAULT_RESOURCE = -1
-
-        const val TARGET_TOKEN_HEADER_NAME = "UF-target-token"
-
-        const val TARGET_TOKEN_REQUEST_HEADER_NAME = "Expect-UF-target-token"
     }
 }
