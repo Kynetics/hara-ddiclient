@@ -9,25 +9,10 @@
 */
 package org.eclipse.hara.ddiapiclient.api
 
-import org.eclipse.hara.ddiapiclient.api.model.ArtifactResponse
-import org.eclipse.hara.ddiapiclient.api.model.ConfigurationDataRequest
-import org.eclipse.hara.ddiapiclient.api.model.CancelActionResponse
-import org.eclipse.hara.ddiapiclient.api.model.CancelFeedbackRequest
-import org.eclipse.hara.ddiapiclient.api.model.ControllerBaseResponse
-import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse
-import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest
 import okhttp3.ResponseBody
+import org.eclipse.hara.ddiapiclient.api.model.*
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Headers
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
-import retrofit2.http.Query
-import retrofit2.http.Streaming
-import retrofit2.http.Url
+import retrofit2.http.*
 
 /**
  * REST resource handling for root controller CRUD operations.
@@ -106,8 +91,10 @@ interface DdiRestApi {
      * @return the response
      */
     @Headers("Accept: application/hal+json")
-    @GET(DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" + DdiRestConstants.DEPLOYMENT_BASE_ACTION +
-            "/{actionId}")
+    @GET(
+        DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" + DdiRestConstants.DEPLOYMENT_BASE_ACTION +
+                "/{actionId}"
+    )
     suspend fun getDeploymentActionDetails(
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
@@ -132,8 +119,10 @@ interface DdiRestApi {
      * @return the response
      */
     @Headers("Content-Type: application/json")
-    @POST(DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" + DdiRestConstants.DEPLOYMENT_BASE_ACTION + "/{actionId}/" +
-            DdiRestConstants.FEEDBACK)
+    @POST(
+        DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" + DdiRestConstants.DEPLOYMENT_BASE_ACTION + "/{actionId}/" +
+                DdiRestConstants.FEEDBACK
+    )
     suspend fun postDeploymentActionFeedback(
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
@@ -154,8 +143,10 @@ interface DdiRestApi {
      * @return status of the request
      */
     @Headers("Content-Type: application/json")
-    @PUT(value = DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" +
-            DdiRestConstants.CONFIG_DATA_ACTION)
+    @PUT(
+        value = DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" +
+                DdiRestConstants.CONFIG_DATA_ACTION
+    )
     suspend fun putConfigData(
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
@@ -175,8 +166,10 @@ interface DdiRestApi {
      * @return the [DdiCancel] response
      */
     @Headers("Accept: application/hal+json")
-    @GET(value = DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" + DdiRestConstants.CANCEL_ACTION +
-            "/{actionId}")
+    @GET(
+        value = DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" + DdiRestConstants.CANCEL_ACTION +
+                "/{actionId}"
+    )
     suspend fun getCancelActionDetails(
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,
@@ -200,8 +193,10 @@ interface DdiRestApi {
      */
 
     @Headers("Content-Type: application/json")
-    @POST(DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" + DdiRestConstants.CANCEL_ACTION + "/{actionId}/" +
-            DdiRestConstants.FEEDBACK)
+    @POST(
+        DdiRestConstants.BASE_V1_REQUEST_MAPPING + "/{controllerId}/" + DdiRestConstants.CANCEL_ACTION + "/{actionId}/" +
+                DdiRestConstants.FEEDBACK
+    )
     suspend fun postCancelActionFeedback(
         @Path("tenant") tenant: String,
         @Path("controllerId") controllerId: String,

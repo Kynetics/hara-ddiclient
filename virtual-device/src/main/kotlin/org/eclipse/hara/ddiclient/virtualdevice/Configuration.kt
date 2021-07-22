@@ -11,7 +11,7 @@
 package org.eclipse.hara.ddiclient.virtualdevice
 
 import org.joda.time.Duration
-import java.util.UUID
+import java.util.*
 
 object Configuration {
 
@@ -55,7 +55,7 @@ object Configuration {
      *  3- client = kotlin
      *
      */
-    val targetAttributes = env("HARA_TARGET_ATTRIBUTES","client,kotlin virtual device")
+    val targetAttributes = env("HARA_TARGET_ATTRIBUTES", "client,kotlin virtual device")
 
     /**
      *
@@ -92,12 +92,12 @@ object Configuration {
      * {4} is replaced with the gatewayToken
      *
      */
-    val srvMsgTemplateAfterUpdate = env("HARA_SRV_MSF_AFTER_UPDATE","Applied the sw {0} for target {1}")
+    val srvMsgTemplateAfterUpdate = env("HARA_SRV_MSF_AFTER_UPDATE", "Applied the sw {0} for target {1}")
 
     val grantDownload = env("HARA_GRANT_DOWNLOAD", "true").toBoolean()
     val grantUpdate = env("HARA_GRANT_UPDATE", "true").toBoolean()
 
-    private fun env(envVariable:String, defaultValue:String):String{
+    private fun env(envVariable: String, defaultValue: String): String {
         return System.getenv(envVariable) ?: defaultValue
     }
 

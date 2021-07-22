@@ -16,16 +16,18 @@ import org.eclipse.hara.ddiclient.virtualdevice.Configuration
 import java.text.MessageFormat
 
 class MessageListenerImpl(
-    private val virtualDeviceId:Int,
+    private val virtualDeviceId: Int,
     private val clientData: HaraClientData
-): MessageListener {
+) : MessageListener {
     override fun onMessage(message: MessageListener.Message) {
         println(
             MessageFormat.format(
-            Configuration.logMessageTemplate,
-            virtualDeviceId,
-            clientData.tenant,
-            clientData.controllerId,
-            clientData.gatewayToken,message))
+                Configuration.logMessageTemplate,
+                virtualDeviceId,
+                clientData.tenant,
+                clientData.controllerId,
+                clientData.gatewayToken, message
+            )
+        )
     }
 }

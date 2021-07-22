@@ -10,22 +10,17 @@
 
 package org.eclipse.hara.ddiclient.core.actors
 
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.launch
 import org.eclipse.hara.ddiapiclient.api.DdiClient
-import org.eclipse.hara.ddiapiclient.api.model.ConfigurationDataRequest
-import org.eclipse.hara.ddiapiclient.api.model.CancelActionResponse
-import org.eclipse.hara.ddiapiclient.api.model.CancelFeedbackRequest
-import org.eclipse.hara.ddiapiclient.api.model.ControllerBaseResponse
-import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse
-import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest
+import org.eclipse.hara.ddiapiclient.api.model.*
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.In
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.Out
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.Out.Err.ErrMsg
 import org.eclipse.hara.ddiclient.core.api.MessageListener
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.launch
 import org.joda.time.Duration
 import org.joda.time.Instant
-import java.util.Timer
+import java.util.*
 import kotlin.concurrent.timer
 
 @OptIn(ObsoleteCoroutinesApi::class)
@@ -41,13 +36,21 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
 
             is In.Start -> become(runningReceive(startPing(state)))
 
-            is In.Stop -> {}
+            is In.Stop -> {
+            }
 
             is In.Register -> become(stoppedReceive(state.withReceiver(msg.listener)))
 
             is In.Unregister -> become(stoppedReceive(state.withoutReceiver(msg.listener)))
 
-            is In.SetPing -> become(stoppedReceive(state.copy(clientPingInterval = msg.duration, lastPing = Instant.EPOCH)))
+            is In.SetPing -> become(
+                stoppedReceive(
+                    state.copy(
+                        clientPingInterval = msg.duration,
+                        lastPing = Instant.EPOCH
+                    )
+                )
+            )
 
             else -> unhandled(msg)
         }
@@ -56,7 +59,8 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
     private fun runningReceive(state: State): Receive = { msg ->
         when (msg) {
 
-            is In.Start -> {}
+            is In.Start -> {
+            }
 
             is In.Stop -> become(stoppedReceive(stopPing(state)))
 
@@ -64,7 +68,16 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
 
             is In.Unregister -> become(runningReceive(state.withoutReceiver(msg.listener)))
 
-            is In.SetPing -> become(runningReceive(startPing(state.copy(clientPingInterval = msg.duration, lastPing = Instant.EPOCH))))
+            is In.SetPing -> become(
+                runningReceive(
+                    startPing(
+                        state.copy(
+                            clientPingInterval = msg.duration,
+                            lastPing = Instant.EPOCH
+                        )
+                    )
+                )
+            )
 
             is In.ForcePing -> {
                 become(runningReceive(state.copy(controllerBaseEtag = "", deploymentEtag = "")))
@@ -99,7 +112,12 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         }
     }
 
-    private suspend fun onControllerBaseChange(state: State, s: State, res: ControllerBaseResponse, newControllerBaseEtag: String) {
+    private suspend fun onControllerBaseChange(
+        state: State,
+        s: State,
+        res: ControllerBaseResponse,
+        newControllerBaseEtag: String
+    ) {
         if (res.requireConfigData() || !configDataProvider.isUpdated()) {
             this.send(Out.ConfigDataRequired, state)
         }
@@ -108,7 +126,11 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         var etag = state.deploymentEtag
         if (res.requireDeployment()) {
             notificationManager.send(MessageListener.Message.Event.UpdateAvailable(res.deploymentActionId()))
-            client.onDeploymentActionDetailsChange(res.deploymentActionId(), 0, state.deploymentEtag) { deplBaseResp, newDeploymentEtag ->
+            client.onDeploymentActionDetailsChange(
+                res.deploymentActionId(),
+                0,
+                state.deploymentEtag
+            ) { deplBaseResp, newDeploymentEtag ->
                 etag = newDeploymentEtag
                 this.send(Out.DeploymentInfo(deplBaseResp, state.deploymentEtag.isEmpty()), state)
             }
@@ -126,8 +148,8 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         }
 
         val newState = s.copy(controllerBaseEtag = newControllerBaseEtag, deploymentEtag = etag)
-                .withServerSleep(res.config.polling.sleep)
-                .withoutBackoff()
+            .withServerSleep(res.config.polling.sleep)
+            .withoutBackoff()
         become(runningReceive(startPing(newState)))
     }
 
@@ -155,7 +177,10 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
         try {
             function.invoke()
         } catch (t: Throwable) {
-            this.send(ErrMsg("exception: ${t.javaClass}" + if (t.message != null) " message: ${t.message}" else ""), state)
+            this.send(
+                ErrMsg("exception: ${t.javaClass}" + if (t.message != null) " message: ${t.message}" else ""),
+                state
+            )
             LOG.warn(t.message, t)
         }
     }
@@ -163,9 +188,11 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
     private fun startPing(state: State): State {
         val now = Instant.now()
         val elapsed = Duration(state.lastPing, now)
-        val timer = timer(name = "Polling",
-                initialDelay = Math.max(state.pingInterval.minus(elapsed).millis, 0),
-                period = Math.max(state.pingInterval.millis, 5_000)) {
+        val timer = timer(
+            name = "Polling",
+            initialDelay = Math.max(state.pingInterval.minus(elapsed).millis, 0),
+            period = Math.max(state.pingInterval.millis, 5_000)
+        ) {
             launch {
                 channel.send(In.Ping)
             }
@@ -206,9 +233,15 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
                 clientPingInterval != null -> clientPingInterval
                 else -> serverPingInterval
             }
+
             fun nextBackoff() = if (backoffPingInterval == null)
                 this.copy(backoffPingInterval = Duration.standardSeconds(1))
-            else this.copy(backoffPingInterval = minOf(backoffPingInterval.multipliedBy(2), Duration.standardMinutes(1)))
+            else this.copy(
+                backoffPingInterval = minOf(
+                    backoffPingInterval.multipliedBy(2),
+                    Duration.standardMinutes(1)
+                )
+            )
 
             fun withoutBackoff() = if (backoffPingInterval != null) this.copy(backoffPingInterval = null) else this
 
@@ -216,13 +249,17 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
                 fun sleepStr2duration(str: String): Duration {
                     val fields = str.split(':').map { Integer.parseInt(it).toLong() }.toTypedArray()
                     return Duration.standardHours(fields[0]).plus(
-                            Duration.standardMinutes(fields[1])).plus(
-                            Duration.standardSeconds(fields[2]))
+                        Duration.standardMinutes(fields[1])
+                    ).plus(
+                        Duration.standardSeconds(fields[2])
+                    )
                 }
+
                 val newServerPingInterval = sleepStr2duration(sleep)
                 return if (newServerPingInterval != serverPingInterval) this.copy(serverPingInterval = newServerPingInterval)
                 else this
             }
+
             fun withReceiver(receiver: ActorRef) = this.copy(receivers = receivers + receiver)
 
             fun withoutReceiver(receiver: ActorRef) = this.copy(receivers = receivers - receiver)
@@ -245,7 +282,9 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
 
             open class Out : Message() {
                 object ConfigDataRequired : Out()
-                data class DeploymentInfo(val info: DeploymentBaseResponse, val forceAuthRequest:Boolean  = false) : Out()
+                data class DeploymentInfo(val info: DeploymentBaseResponse, val forceAuthRequest: Boolean = false) :
+                    Out()
+
                 data class DeploymentCancelInfo(val info: CancelActionResponse) : Out()
 
                 object NoAction : Out()

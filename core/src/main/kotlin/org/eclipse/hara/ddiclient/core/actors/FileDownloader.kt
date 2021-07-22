@@ -10,6 +10,8 @@
 
 package org.eclipse.hara.ddiclient.core.actors
 
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.launch
 import org.eclipse.hara.ddiapiclient.api.DdiClient
 import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest
 import org.eclipse.hara.ddiclient.core.api.MessageListener
@@ -17,19 +19,17 @@ import org.eclipse.hara.ddiclient.core.inputstream.FilterInputStreamWithProgress
 import org.eclipse.hara.ddiclient.core.md5
 import java.io.File
 import java.text.NumberFormat
-import java.util.Timer
+import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
 import kotlin.concurrent.fixedRateTimer
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.launch
 
 @OptIn(ObsoleteCoroutinesApi::class)
 class FileDownloader
 private constructor(
-        scope: ActorScope,
-        private val fileToDownload: FileToDownload,
-        attempts: Int,
-        actionId: String
+    scope: ActorScope,
+    private val fileToDownload: FileToDownload,
+    attempts: Int,
+    actionId: String
 ) : AbstractActor(scope) {
 
     private val client: DdiClient = coroutineContext[HaraClientContext]!!.ddiClient
@@ -76,8 +76,16 @@ private constructor(
             is Message.RetryDownload -> {
                 val errorMessage = "retry download due to: ${msg.cause}"
                 parent!!.send(Message.Info(channel, fileToDownload.md5, errorMessage))
-                notificationManager.send(MessageListener.Message.Event.Error(listOf(errorMessage, "Remaining attempts: ${state.remainingAttempts}")))
-                val newState = state.copy(remainingAttempts = state.remainingAttempts - 1, errors = state.errors + msg.cause)
+                notificationManager.send(
+                    MessageListener.Message.Event.Error(
+                        listOf(
+                            errorMessage,
+                            "Remaining attempts: ${state.remainingAttempts}"
+                        )
+                    )
+                )
+                val newState =
+                    state.copy(remainingAttempts = state.remainingAttempts - 1, errors = state.errors + msg.cause)
                 become(downloading(newState))
                 tryDownload(newState)
             }
@@ -116,7 +124,8 @@ private constructor(
             file.delete()
         }
 
-        val inputStream = FilterInputStreamWithProgress(client.downloadArtifact(fileToDownload.url), fileToDownload.size)
+        val inputStream =
+            FilterInputStreamWithProgress(client.downloadArtifact(fileToDownload.url), fileToDownload.size)
 
         val queue = ArrayBlockingQueue<Double>(10, true, (1..9).map { it.toDouble() / 10 })
 
@@ -131,31 +140,44 @@ private constructor(
     }
 
     private fun checkDownloadProgress(
-            inputStream: FilterInputStreamWithProgress,
-            queue: ArrayBlockingQueue<Double>,
-            actionId: String
+        inputStream: FilterInputStreamWithProgress,
+        queue: ArrayBlockingQueue<Double>,
+        actionId: String
     ): Timer {
         return fixedRateTimer("Download Checker ${fileToDownload.fileName}", false, 60_000, 60_000) {
             launch {
                 val progress = inputStream.getProgress()
                 val limit = queue.peek() ?: 1.0
                 if (progress > limit) {
-                    feedback(actionId,
-                            DeploymentFeedbackRequest.Status.Execution.proceeding,
-                            DeploymentFeedbackRequest.Status.Result.Progress(0, 0),
-                            DeploymentFeedbackRequest.Status.Result.Finished.none,
-                            "Downloading file named ${fileToDownload.fileName} " +
-                                    "- ${progress.toPercentage(2)}")
+                    feedback(
+                        actionId,
+                        DeploymentFeedbackRequest.Status.Execution.proceeding,
+                        DeploymentFeedbackRequest.Status.Result.Progress(0, 0),
+                        DeploymentFeedbackRequest.Status.Result.Finished.none,
+                        "Downloading file named ${fileToDownload.fileName} " +
+                                "- ${progress.toPercentage(2)}"
+                    )
                     while (progress > queue.peek() ?: 1.0 && queue.isNotEmpty()) {
                         queue.poll()
                     }
                 }
-                notificationManager.send(MessageListener.Message.Event.DownloadProgress(fileToDownload.fileName, progress))
+                notificationManager.send(
+                    MessageListener.Message.Event.DownloadProgress(
+                        fileToDownload.fileName,
+                        progress
+                    )
+                )
             }
         }
     }
 
-    private suspend fun feedback(id: String, execution: DeploymentFeedbackRequest.Status.Execution, progress: DeploymentFeedbackRequest.Status.Result.Progress, finished: DeploymentFeedbackRequest.Status.Result.Finished, vararg messages: String) {
+    private suspend fun feedback(
+        id: String,
+        execution: DeploymentFeedbackRequest.Status.Execution,
+        progress: DeploymentFeedbackRequest.Status.Result.Progress,
+        finished: DeploymentFeedbackRequest.Status.Result.Finished,
+        vararg messages: String
+    ) {
         val deplFdbkReq = DeploymentFeedbackRequest.newInstance(id, execution, progress, finished, *messages)
         connectionManager.send(ConnectionManager.Companion.Message.In.DeploymentFeedback(deplFdbkReq))
     }
@@ -163,7 +185,7 @@ private constructor(
     private suspend fun checkMd5OfDownloadedFile() {
         launch {
             var fileAlreadyDownloaded = false
-            val file = if(fileToDownload.destination.exists()) {
+            val file = if (fileToDownload.destination.exists()) {
                 LOG.info("${fileToDownload.fileName} already downloaded. Checking md5...")
                 fileAlreadyDownloaded = true
                 fileToDownload.destination
@@ -198,18 +220,18 @@ private constructor(
     companion object {
         const val DOWNLOADING_EXTENSION = "downloading"
         fun of(
-                scope: ActorScope,
-                attempts: Int,
-                fileToDownload: FileToDownload,
-                actionId: String
+            scope: ActorScope,
+            attempts: Int,
+            fileToDownload: FileToDownload,
+            actionId: String
         ) = FileDownloader(scope, fileToDownload, attempts, actionId)
 
         data class FileToDownload(
-                val fileName: String,
-                val md5: String,
-                val url: String,
-                val folder: File,
-                val size: Long
+            val fileName: String,
+            val md5: String,
+            val url: String,
+            val folder: File,
+            val size: Long
         ) {
             val tempFile = File(folder, "$md5.$DOWNLOADING_EXTENSION")
             val destination = File(folder, md5)
@@ -217,9 +239,9 @@ private constructor(
         }
 
         private data class State(
-                val remainingAttempts: Int,
-                val actionId: String,
-                val errors: List<String> = emptyList()
+            val remainingAttempts: Int,
+            val actionId: String,
+            val errors: List<String> = emptyList()
         )
 
         sealed class Message {

@@ -15,13 +15,13 @@ import okhttp3.OkHttpClient
 interface HaraClient {
 
     fun init(
-            haraClientData: HaraClientData,
-            directoryForArtifactsProvider: DirectoryForArtifactsProvider,
-            configDataProvider: ConfigDataProvider,
-            deploymentPermitProvider: DeploymentPermitProvider,
-            messageListeners: List<MessageListener>,
-            updaters: List<Updater>,
-            httpBuilder: OkHttpClient.Builder = OkHttpClient.Builder()
+        haraClientData: HaraClientData,
+        directoryForArtifactsProvider: DirectoryForArtifactsProvider,
+        configDataProvider: ConfigDataProvider,
+        deploymentPermitProvider: DeploymentPermitProvider,
+        messageListeners: List<MessageListener>,
+        updaters: List<Updater>,
+        httpBuilder: OkHttpClient.Builder = OkHttpClient.Builder()
     )
 
     fun startAsync()

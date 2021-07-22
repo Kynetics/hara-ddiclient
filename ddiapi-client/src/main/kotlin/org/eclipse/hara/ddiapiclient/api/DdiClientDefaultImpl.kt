@@ -10,28 +10,25 @@
 
 package org.eclipse.hara.ddiapiclient.api
 
-import org.eclipse.hara.ddiapiclient.api.model.ArtifactResponse
-import org.eclipse.hara.ddiapiclient.api.model.ConfigurationDataRequest
-import org.eclipse.hara.ddiapiclient.api.model.CancelActionResponse
-import org.eclipse.hara.ddiapiclient.api.model.CancelFeedbackRequest
-import org.eclipse.hara.ddiapiclient.api.model.ControllerBaseResponse
-import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse
-import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest
+import okhttp3.OkHttpClient
+import org.eclipse.hara.ddiapiclient.api.model.*
 import org.eclipse.hara.ddiapiclient.security.Authentication
 import org.eclipse.hara.ddiapiclient.security.HawkbitAuthenticationRequestInterceptor
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.util.HashSet
-import java.util.concurrent.Executors
-import okhttp3.OkHttpClient
 import org.eclipse.hara.ddiclient.core.api.HaraClientData
 import org.slf4j.LoggerFactory
 import retrofit2.HttpException
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.InputStream
+import java.net.HttpURLConnection
+import java.util.concurrent.Executors
 
-class DdiClientDefaultImpl private constructor(private val ddiRestApi: DdiRestApi, private val tenant: String, private val controllerId: String) : DdiClient {
+class DdiClientDefaultImpl private constructor(
+    private val ddiRestApi: DdiRestApi,
+    private val tenant: String,
+    private val controllerId: String
+) : DdiClient {
 
     override suspend fun getSoftwareModulesArtifacts(softwareModuleId: String): List<ArtifactResponse> {
         LOG.debug("getSoftwareModulesArtifacts({})", softwareModuleId)
@@ -69,7 +66,12 @@ class DdiClientDefaultImpl private constructor(private val ddiRestApi: DdiRestAp
         return handleResponse(response)
     }
 
-    override suspend fun onDeploymentActionDetailsChange(actionId: String, historyCount: Int, etag: String, onChange: OnResourceChange<DeploymentBaseResponse>) {
+    override suspend fun onDeploymentActionDetailsChange(
+        actionId: String,
+        historyCount: Int,
+        etag: String,
+        onChange: OnResourceChange<DeploymentBaseResponse>
+    ) {
         LOG.debug("onDeploymentActionDetailsChange($actionId, $historyCount, $etag)")
         val response = ddiRestApi.getDeploymentActionDetails(tenant, controllerId, actionId, null, historyCount, etag)
         LOG.debug("{}", response)
@@ -98,7 +100,12 @@ class DdiClientDefaultImpl private constructor(private val ddiRestApi: DdiRestAp
         return ddiRestApi.downloadArtifact(url).byteStream()
     }
 
-    private suspend fun <T> handleOnChangeResponse(response: Response<T>, etag: String, resourceName: String, onChange: OnResourceChange<T>) {
+    private suspend fun <T> handleOnChangeResponse(
+        response: Response<T>,
+        etag: String,
+        resourceName: String,
+        onChange: OnResourceChange<T>
+    ) {
         when (response.code()) {
             in 200..299 -> {
                 val newEtag = response.headers()[ETAG_HEADER] ?: ""
@@ -124,23 +131,33 @@ class DdiClientDefaultImpl private constructor(private val ddiRestApi: DdiRestAp
 
         val LOG = LoggerFactory.getLogger(DdiClient::class.java)!!
 
-        fun of(haraClientData: HaraClientData, httpBuilder:OkHttpClient.Builder): DdiClientDefaultImpl {
+        fun of(haraClientData: HaraClientData, httpBuilder: OkHttpClient.Builder): DdiClientDefaultImpl {
             val authentications = HashSet<Authentication>()
             with(haraClientData) {
                 if (gatewayToken != null) {
-                    authentications.add(Authentication.newInstance(Authentication.AuthenticationType.GATEWAY_TOKEN_AUTHENTICATION, gatewayToken!!))
+                    authentications.add(
+                        Authentication.newInstance(
+                            Authentication.AuthenticationType.GATEWAY_TOKEN_AUTHENTICATION,
+                            gatewayToken!!
+                        )
+                    )
                 }
                 if (targetToken != null) {
-                    authentications.add(Authentication.newInstance(Authentication.AuthenticationType.TARGET_TOKEN_AUTHENTICATION, targetToken!!))
+                    authentications.add(
+                        Authentication.newInstance(
+                            Authentication.AuthenticationType.TARGET_TOKEN_AUTHENTICATION,
+                            targetToken!!
+                        )
+                    )
                 }
                 httpBuilder.interceptors().add(0, HawkbitAuthenticationRequestInterceptor(authentications))
                 val ddiRestApi = Retrofit.Builder()
-                        .baseUrl(serverUrl)
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .callbackExecutor(Executors.newSingleThreadExecutor())
-                        .client(httpBuilder.build())
-                        .build()
-                        .create(DdiRestApi::class.java)
+                    .baseUrl(serverUrl)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .callbackExecutor(Executors.newSingleThreadExecutor())
+                    .client(httpBuilder.build())
+                    .build()
+                    .create(DdiRestApi::class.java)
                 return DdiClientDefaultImpl(ddiRestApi, tenant, controllerId)
             }
         }

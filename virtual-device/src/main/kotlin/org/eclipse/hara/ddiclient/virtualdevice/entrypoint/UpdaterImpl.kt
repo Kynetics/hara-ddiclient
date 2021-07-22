@@ -16,18 +16,18 @@ import org.eclipse.hara.ddiclient.virtualdevice.Configuration
 import java.text.MessageFormat
 
 class UpdaterImpl(
-    private val virtualDeviceId:Int,
+    private val virtualDeviceId: Int,
     private val clientData: HaraClientData
-): Updater {
+) : Updater {
     override fun apply(
-            modules: Set<Updater.SwModuleWithPath>,
-            messenger: Updater.Messenger
+        modules: Set<Updater.SwModuleWithPath>,
+        messenger: Updater.Messenger
     ): Updater.UpdateResult {
         println("APPLY UPDATE $modules")
         val regex = Regex("VIRTUAL_DEVICE_UPDATE_RESULT_(\\*|${clientData.controllerId})")
-        val result = modules.fold (Pair(true, listOf<String>())) { acc, module->
+        val result = modules.fold(Pair(true, listOf<String>())) { acc, module ->
 
-            val command = (module.metadata?.firstOrNull{md -> md.key.contains(regex)}?.value ?: "OK|1|").split("|")
+            val command = (module.metadata?.firstOrNull { md -> md.key.contains(regex) }?.value ?: "OK|1|").split("|")
 
             messenger.sendMessageToServer(
                 MessageFormat.format(
@@ -36,7 +36,8 @@ class UpdaterImpl(
                     virtualDeviceId,
                     clientData.tenant,
                     clientData.controllerId,
-                    clientData.gatewayToken)
+                    clientData.gatewayToken
+                )
             )
             Thread.sleep(command[1].toLong() * 1000)
             messenger.sendMessageToServer(
@@ -46,7 +47,8 @@ class UpdaterImpl(
                     virtualDeviceId,
                     clientData.tenant,
                     clientData.controllerId,
-                    clientData.gatewayToken)
+                    clientData.gatewayToken
+                )
             )
 
             (acc.first && command[0] == "OK") to (acc.second + command.drop(2))

@@ -10,11 +10,10 @@
 
 package org.eclipse.hara.ddiapiclient.security
 
-import java.io.IOException
-import java.util.ArrayList
-import java.util.Objects
 import okhttp3.Interceptor
 import okhttp3.Response
+import java.io.IOException
+import java.util.*
 
 /**
  * @author Daniele Sergio

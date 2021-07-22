@@ -14,11 +14,11 @@ import java.net.MalformedURLException
 import java.net.URL
 
 data class HaraClientData constructor(
-        val tenant: String,
-        val controllerId: String,
-        val serverUrl: String,
-        val gatewayToken: String? = null,
-        val targetToken: String? = null,
+    val tenant: String,
+    val controllerId: String,
+    val serverUrl: String,
+    val gatewayToken: String? = null,
+    val targetToken: String? = null,
 ) {
 
     init {

@@ -10,40 +10,41 @@
 
 package org.eclipse.hara.ddiclient.integrationtest
 
-import org.eclipse.hara.ddiclient.core.HaraClientDefaultImpl
-import org.eclipse.hara.ddiclient.integrationtest.TestUtils.basic
-import org.eclipse.hara.ddiclient.integrationtest.TestUtils.gatewayToken
-import org.eclipse.hara.ddiclient.integrationtest.TestUtils.getDownloadDirectoryFromActionId
-import org.eclipse.hara.ddiclient.integrationtest.TestUtils.tenantName
-import org.eclipse.hara.ddiclient.integrationtest.TestUtils.hawkbitUrl
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import org.eclipse.hara.ddiclient.core.HaraClientDefaultImpl
 import org.eclipse.hara.ddiclient.core.api.*
+import org.eclipse.hara.ddiclient.integrationtest.TestUtils.basic
+import org.eclipse.hara.ddiclient.integrationtest.TestUtils.gatewayToken
+import org.eclipse.hara.ddiclient.integrationtest.TestUtils.getDownloadDirectoryFromActionId
+import org.eclipse.hara.ddiclient.integrationtest.TestUtils.hawkbitUrl
+import org.eclipse.hara.ddiclient.integrationtest.TestUtils.tenantName
 import org.joda.time.Duration
 import org.testng.Assert
 import java.io.File
-import java.util.LinkedList
+import java.util.*
 
 abstract class AbstractClientTest {
 
     protected var client: HaraClient? = null
 
-    private val queue = LinkedList<() -> Unit >()
+    private val queue = LinkedList<() -> Unit>()
 
     protected open fun defaultClientFromTargetId(
-            directoryDataProvider: DirectoryForArtifactsProvider = TestUtils.directoryDataProvider,
-            configDataProvider: ConfigDataProvider = TestUtils.configDataProvider,
-            updater: Updater = TestUtils.updater,
-            messageListeners: List<MessageListener> = emptyList(),
-            deploymentPermitProvider: DeploymentPermitProvider = object : DeploymentPermitProvider {}
+        directoryDataProvider: DirectoryForArtifactsProvider = TestUtils.directoryDataProvider,
+        configDataProvider: ConfigDataProvider = TestUtils.configDataProvider,
+        updater: Updater = TestUtils.updater,
+        messageListeners: List<MessageListener> = emptyList(),
+        deploymentPermitProvider: DeploymentPermitProvider = object : DeploymentPermitProvider {}
     ): (String) -> HaraClient = { targetId ->
         val clientData = HaraClientData(
-                tenantName,
-                targetId,
-                hawkbitUrl,
-                gatewayToken)
+            tenantName,
+            targetId,
+            hawkbitUrl,
+            gatewayToken
+        )
 
         val client = HaraClientDefaultImpl()
 
@@ -55,27 +56,29 @@ abstract class AbstractClientTest {
                         queue.poll().invoke()
                     }
 
-                    else -> { println(message) }
+                    else -> {
+                        println(message)
+                    }
                 }
             }
         }
 
         client.init(
-                clientData,
-                directoryDataProvider,
-                configDataProvider,
-                deploymentPermitProvider,
-                listOf(eventListener, *messageListeners.toTypedArray()),
-                listOf(updater)
+            clientData,
+            directoryDataProvider,
+            configDataProvider,
+            deploymentPermitProvider,
+            listOf(eventListener, *messageListeners.toTypedArray()),
+            listOf(updater)
         )
         client
     }
 
     // todo refactor test
     protected fun testTemplate(
-            deployment: TestUtils.TargetDeployments,
-            timeout: Long = Duration.standardSeconds(15).millis,
-            clientFromTargetId: (String) -> HaraClient = defaultClientFromTargetId()
+        deployment: TestUtils.TargetDeployments,
+        timeout: Long = Duration.standardSeconds(15).millis,
+        clientFromTargetId: (String) -> HaraClient = defaultClientFromTargetId()
     ) = runBlocking {
 
         withTimeout(timeout) {
@@ -84,18 +87,23 @@ abstract class AbstractClientTest {
 
             deployment.deploymentInfo.forEach { deploymentInfo ->
 
-                var actionStatus = managementApi.getTargetActionStatusAsync(basic, deployment.targetId, deploymentInfo.actionId)
+                var actionStatus =
+                    managementApi.getTargetActionStatusAsync(basic, deployment.targetId, deploymentInfo.actionId)
 
                 Assert.assertEquals(actionStatus, deploymentInfo.actionStatusOnStart)
 
                 queue.add {
                     launch {
-                        while(managementApi.getActionAsync(basic, deployment.targetId, deploymentInfo.actionId)
+                        while (managementApi.getActionAsync(basic, deployment.targetId, deploymentInfo.actionId)
                                 .status != Action.Status.finished
                         ) {
                             delay(100)
                         }
-                        actionStatus = managementApi.getTargetActionStatusAsync(basic, deployment.targetId, deploymentInfo.actionId)
+                        actionStatus = managementApi.getTargetActionStatusAsync(
+                            basic,
+                            deployment.targetId,
+                            deploymentInfo.actionId
+                        )
 
                         Assert.assertEquals(actionStatus.content, deploymentInfo.actionStatusOnFinish.content)
 
@@ -112,7 +120,8 @@ abstract class AbstractClientTest {
             client?.startAsync()
             launch {
                 while (queue.isNotEmpty()) {
-                    delay(500) }
+                    delay(500)
+                }
             }
         }
     }

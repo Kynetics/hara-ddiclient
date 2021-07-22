@@ -10,13 +10,7 @@
 
 package org.eclipse.hara.ddiapiclient.api
 
-import org.eclipse.hara.ddiapiclient.api.model.ArtifactResponse
-import org.eclipse.hara.ddiapiclient.api.model.ConfigurationDataRequest
-import org.eclipse.hara.ddiapiclient.api.model.CancelActionResponse
-import org.eclipse.hara.ddiapiclient.api.model.CancelFeedbackRequest
-import org.eclipse.hara.ddiapiclient.api.model.ControllerBaseResponse
-import org.eclipse.hara.ddiapiclient.api.model.DeploymentBaseResponse
-import org.eclipse.hara.ddiapiclient.api.model.DeploymentFeedbackRequest
+import org.eclipse.hara.ddiapiclient.api.model.*
 import java.io.InputStream
 
 typealias OnResourceChange<T> = suspend (T, String) -> Unit
@@ -29,7 +23,12 @@ interface DdiClient {
 
     suspend fun getDeploymentActionDetails(actionId: String, historyCount: Int = -1): DeploymentBaseResponse
 
-    suspend fun onDeploymentActionDetailsChange(actionId: String, historyCount: Int = -1, etag: String = "", onChange: OnResourceChange<DeploymentBaseResponse>)
+    suspend fun onDeploymentActionDetailsChange(
+        actionId: String,
+        historyCount: Int = -1,
+        etag: String = "",
+        onChange: OnResourceChange<DeploymentBaseResponse>
+    )
 
     suspend fun getCancelActionDetails(actionId: String): CancelActionResponse
 

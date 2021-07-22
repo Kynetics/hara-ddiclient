@@ -44,7 +44,9 @@ abstract class AbstractActor protected constructor(private val actorScope: Actor
 
     protected fun child(name: String) = childs[name]
 
-    protected fun become(receive: Receive) { __receive__ = receive }
+    protected fun become(receive: Receive) {
+        __receive__ = receive
+    }
 
     protected val LOG = LoggerFactory.getLogger(this::class.java)
 
@@ -63,7 +65,7 @@ abstract class AbstractActor protected constructor(private val actorScope: Actor
     }
 
     protected fun forEachActorNode(ope: (ActorRef) -> Unit) {
-            childs.forEach { (_, actorRef) -> ope(actorRef) }
+        childs.forEach { (_, actorRef) -> ope(actorRef) }
     }
 
     override val channel: Channel<Any> = object : Channel<Any> by actorScope.channel {
@@ -87,23 +89,34 @@ abstract class AbstractActor protected constructor(private val actorScope: Actor
         block: suspend (ActorScope) -> T
     ): ActorRef {
         val childRef = actorScope.actor<Any>(
-                Dispatchers.IO.plus(CoroutineName(name)).plus(ParentActor(this.channel)).plus(context),
-                capacity, start, onCompletion) { __workflow__(LOG, block)() }
+            Dispatchers.IO.plus(CoroutineName(name)).plus(ParentActor(this.channel)).plus(context),
+            capacity, start, onCompletion
+        ) { __workflow__(LOG, block)() }
         childs.put(name, childRef)
         return childRef
     }
 
     companion object {
 
-        private fun <T : AbstractActor> __workflow__(logger: Logger, block: suspend (ActorScope) -> T): suspend ActorScope.() -> Unit = {
+        private fun <T : AbstractActor> __workflow__(
+            logger: Logger,
+            block: suspend (ActorScope) -> T
+        ): suspend ActorScope.() -> Unit = {
             try {
                 val actor = block(this)
                 actor.LOG.info("Actor {} created.", actor.name)
                 try {
-                    for (message in channel) { actor.__receive__(message) }
+                    for (message in channel) {
+                        actor.__receive__(message)
+                    }
                     actor.LOG.info("Actor {} exiting.", actor.name)
                 } catch (t: Throwable) {
-                    actor.LOG.error("Error processing message in actor {}. error: {} message: {}", actor.name, t.javaClass, t.message)
+                    actor.LOG.error(
+                        "Error processing message in actor {}. error: {} message: {}",
+                        actor.name,
+                        t.javaClass,
+                        t.message
+                    )
                     actor.LOG.debug(t.message, t)
                     if (actor.parent != null) {
                         actor.parent.send(ActorException(actor.name, actor.channel, t))
@@ -132,26 +145,28 @@ abstract class AbstractActor protected constructor(private val actorScope: Actor
             onCompletion: CompletionHandler? = null,
             block: suspend (ActorScope) -> T
         ): ActorRef =
-                GlobalScope.actor(Dispatchers.IO.plus(CoroutineName(name)).plus(context), capacity, start, onCompletion) {
-                    __workflow__(LoggerFactory.getLogger(AbstractActor::class.java), block)()
-                }
+            GlobalScope.actor(Dispatchers.IO.plus(CoroutineName(name)).plus(context), capacity, start, onCompletion) {
+                __workflow__(LoggerFactory.getLogger(AbstractActor::class.java), block)()
+            }
     }
 }
 
 data class HaraClientContext(
-        val ddiClient: DdiClient,
-        val registry: UpdaterRegistry,
-        val configDataProvider: ConfigDataProvider,
-        val pathResolver: PathResolver,
-        val deploymentPermitProvider: DeploymentPermitProvider,
-        val messageListeners: List<MessageListener>
+    val ddiClient: DdiClient,
+    val registry: UpdaterRegistry,
+    val configDataProvider: ConfigDataProvider,
+    val pathResolver: PathResolver,
+    val deploymentPermitProvider: DeploymentPermitProvider,
+    val messageListeners: List<MessageListener>
 ) : AbstractCoroutineContextElement(HaraClientContext) {
     companion object Key : CoroutineContext.Key<HaraClientContext>
+
     override fun toString(): String = "HaraClientContext($this)"
 }
 
 data class ParentActor(val ref: ActorRef) : AbstractCoroutineContextElement(ParentActor) {
     companion object Key : CoroutineContext.Key<ParentActor>
+
     override fun toString(): String = "ParentActor($ref)"
 }
 

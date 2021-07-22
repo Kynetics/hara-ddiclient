@@ -17,14 +17,17 @@ interface Updater {
     }
 
     fun requiredSoftwareModulesAndPriority(swModules: Set<SwModule>): SwModsApplication =
-            SwModsApplication(0,
-                    swModules.map {
-                        SwModsApplication.SwModule(
-                                it.type,
-                                it.name,
-                                it.version,
-                                it.artifacts.map { a -> a.hashes }.toSet())
-                    }.toSet())
+        SwModsApplication(
+            0,
+            swModules.map {
+                SwModsApplication.SwModule(
+                    it.type,
+                    it.name,
+                    it.version,
+                    it.artifacts.map { a -> a.hashes }.toSet()
+                )
+            }.toSet()
+        )
 
     fun updateIsCancellable(): Boolean = true
 
@@ -35,39 +38,41 @@ interface Updater {
 
     data class UpdateResult(val success: Boolean, val details: List<String> = emptyList())
     data class SwModule(
-            val metadata: Set<Metadata>?,
-            val type: String,
-            val name: String,
-            val version: String,
-            val artifacts: Set<Artifact>
+        val metadata: Set<Metadata>?,
+        val type: String,
+        val name: String,
+        val version: String,
+        val artifacts: Set<Artifact>
     ) {
         data class Metadata(
             val key: String,
             val value: String
         )
+
         data class Artifact(
-                val filename: String,
-                val hashes: Hashes,
-                val size: Long
+            val filename: String,
+            val hashes: Hashes,
+            val size: Long
         )
     }
 
     data class SwModuleWithPath(
-            val metadata: Set<Metadata>?,
-            val type: String,
-            val name: String,
-            val version: String,
-            val artifacts: Set<Artifact>
+        val metadata: Set<Metadata>?,
+        val type: String,
+        val name: String,
+        val version: String,
+        val artifacts: Set<Artifact>
     ) {
         data class Metadata(
             val key: String,
             val value: String
         )
+
         data class Artifact(
-                val filename: String,
-                val hashes: Hashes,
-                val size: Long,
-                val path: String
+            val filename: String,
+            val hashes: Hashes,
+            val size: Long,
+            val path: String
         )
     }
 

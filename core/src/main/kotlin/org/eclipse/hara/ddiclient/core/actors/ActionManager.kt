@@ -10,14 +10,14 @@
 
 package org.eclipse.hara.ddiclient.core.actors
 
-import org.eclipse.hara.ddiapiclient.api.model.ConfigurationDataRequest
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import org.eclipse.hara.ddiapiclient.api.model.CancelFeedbackRequest
+import org.eclipse.hara.ddiapiclient.api.model.ConfigurationDataRequest
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.In
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.Out
 import org.eclipse.hara.ddiclient.core.actors.ConnectionManager.Companion.Message.Out.Err.ErrMsg
 import org.eclipse.hara.ddiclient.core.api.MessageListener
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import org.joda.time.Duration
 
 @OptIn(ObsoleteCoroutinesApi::class)
@@ -102,20 +102,30 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
     private suspend fun onCancelInfo(msg: Out.DeploymentCancelInfo, state: State) {
         when {
             !state.inDeployment && registry.currentUpdateIsCancellable() -> {
-                connectionManager.send(In.CancelFeedback(
-                        CancelFeedbackRequest.newInstance(msg.info.cancelAction.stopId,
-                                CancelFeedbackRequest.Status.Execution.closed,
-                                CancelFeedbackRequest.Status.Result.Finished.success)))
+                connectionManager.send(
+                    In.CancelFeedback(
+                        CancelFeedbackRequest.newInstance(
+                            msg.info.cancelAction.stopId,
+                            CancelFeedbackRequest.Status.Execution.closed,
+                            CancelFeedbackRequest.Status.Result.Finished.success
+                        )
+                    )
+                )
                 notificationManager.send(MessageListener.Message.State.CancellingUpdate)
                 connectionManager.send(In.SetPing(null))
             }
 
             !registry.currentUpdateIsCancellable() -> {
-                connectionManager.send(In.CancelFeedback(
-                        CancelFeedbackRequest.newInstance(msg.info.cancelAction.stopId,
-                                CancelFeedbackRequest.Status.Execution.rejected,
-                                CancelFeedbackRequest.Status.Result.Finished.success,
-                                "Update already started. Can't be stopped.")))
+                connectionManager.send(
+                    In.CancelFeedback(
+                        CancelFeedbackRequest.newInstance(
+                            msg.info.cancelAction.stopId,
+                            CancelFeedbackRequest.Status.Execution.rejected,
+                            CancelFeedbackRequest.Status.Result.Finished.success,
+                            "Update already started. Can't be stopped."
+                        )
+                    )
+                )
             }
 
             else -> {
@@ -139,6 +149,7 @@ private constructor(scope: ActorScope) : AbstractActor(scope) {
             }
         }
     }
+
     init {
         become(defaultReceive(State()))
         runBlocking { connectionManager.send(In.Register(channel)) }
