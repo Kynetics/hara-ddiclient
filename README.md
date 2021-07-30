@@ -1,3 +1,5 @@
+*Development of this project has moved to the [Eclipse hara-ddiclient GitHub repository](https://github.com/eclipse/hara-ddiclient/) and this repository is now **read-only**.*
+
 <p align="center"><img src="hara_logo.png" width=20% height=20% ></p>
 <h1 align="center">Eclipse Hara™ - hara-ddiclient</h1>
 <p align="center">
